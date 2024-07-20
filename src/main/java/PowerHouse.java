@@ -1,9 +1,13 @@
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
+import javax.sound.sampled.Line;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class PowerHouse {
@@ -34,9 +38,15 @@ public class PowerHouse {
     public static void parseFile(Path filePath) {
         try {
             JavaParser parser = new JavaParser();
-            CompilationUnit compilationUnit = parser.parse(filePath).getResult().orElse(null);
-            if (compilationUnit != null) {
+            Optional<CompilationUnit> result = parser.parse(filePath).getResult();
+
+            if (result.isPresent()) {
+                CompilationUnit compilationUnit = result.get();
+                List<ClassOrInterfaceDeclaration> classDeclarations = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
+                int lineCount = getLineCount(filePath);
+
                 System.out.println("File: " + filePath);
+                System.out.println("LineCount: " + lineCount);
             } else {
                 System.out.println("Error parsing file: " + filePath);
             }
@@ -44,5 +54,15 @@ public class PowerHouse {
         } catch (IOException e) {
             throw new RuntimeException("IOException occurred while parsing file: " + filePath, e);
         }
+    }
+
+    public static int getLineCount(Path filePath) throws IOException {
+        int lineCount;
+        try {
+            lineCount = (int) Files.lines(filePath).count();
+        } catch (IOException e) {
+            throw new RuntimeException("IOException occurred while counting file lines: " + filePath, e);
+        }
+        return lineCount;
     }
 }
