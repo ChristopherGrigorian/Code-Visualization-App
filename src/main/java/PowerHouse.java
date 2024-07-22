@@ -7,6 +7,7 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
+import java.io.File;
 import java.util.*;
 
 import java.io.IOException;
@@ -15,11 +16,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javafx.util.Pair;
+//import javafx.util.Pair;
 
 public class PowerHouse {
 
     private static PowerHouse instance;
+    private static File curDirectory;
 
     private PowerHouse() {
         super();
@@ -32,17 +34,25 @@ public class PowerHouse {
         return instance;
     }
 
+    public File getCurDirectory() {
+        return curDirectory;
+    }
+
+    public void setCurDirectory(File curDirectory) {
+        PowerHouse.curDirectory = curDirectory;
+    }
+
     public void parseDirectory(Path path) throws IOException {
         try (Stream<Path> paths = Files.walk(path)) {
             paths.filter(Files::isRegularFile)
                     .filter(p -> p.toString().endsWith(".java"))
-                    .forEach(PowerHouse::parseFile);
+                    .forEach(this::parseFile);
         } catch (IOException e) {
             throw new IOException("Error walking through directory", e);
         }
     }
 
-    public static void parseFile(Path filePath) {
+    public void parseFile(Path filePath) {
         try {
             String content = Files.readString(filePath);
             JavaParser parser = new JavaParser();
@@ -78,22 +88,22 @@ public class PowerHouse {
         }
     }
 
-    public static int getLineCount(String content) throws IOException {
+    public int getLineCount(String content) throws IOException {
         return (int) content.lines().count();
     }
 
-    public static int getBlankLineCount(String content) {
+    public int getBlankLineCount(String content) {
         return (int) content.lines().filter(String::isBlank).count();
     }
 
-    public static int getStandaloneBracketLineCount(String content) {
+    public int getStandaloneBracketLineCount(String content) {
         return (int) content.lines()
                 .map(String::trim)
                 .filter(line -> line.equals("{") || line.equals("}"))
                 .count();
     }
 
-    public static int getCommentLineCount(String content, CompilationUnit compilationUnit) {
+    public int getCommentLineCount(String content, CompilationUnit compilationUnit) {
         int commentLines = compilationUnit.getAllComments().stream()
                 .mapToInt(comment -> {
                     if (comment instanceof BlockComment || comment instanceof JavadocComment) {
@@ -111,7 +121,7 @@ public class PowerHouse {
         return commentLines;
     }
 
-    public static int getLogicalLineCount(String content, CompilationUnit compilationUnit) {
+    public int getLogicalLineCount(String content, CompilationUnit compilationUnit) {
         long semiColonLines = Stream.of(content.split("\r\n|\r|\n"))
                 .map(line -> removeCommentsFromLine(line).trim())
                 .filter(line -> line.endsWith(";"))
@@ -121,12 +131,12 @@ public class PowerHouse {
         return (int) (semiColonLines + forLoops);
     }
 
-    public static String removeCommentsFromLine(String line) {
+    public String removeCommentsFromLine(String line) {
         line = line.replaceAll("//.*", "");
         line = line.replaceAll("/\\*.*?\\*/", "");
         return line;
     }
-
+/*
     public ArrayList<Pair<String, String>> getFunctions(String content, CompilationUnit compilationUnit) {
 //        Returns a list of pairs of function names, and their parent class
         ArrayList<Pair<String, String>> functions = new ArrayList<>();
@@ -161,7 +171,9 @@ public class PowerHouse {
         }
         return functions;
     }
-    private static int getAbstractness(CompilationUnit compilationUnit) {
+
+    */
+    private int getAbstractness(CompilationUnit compilationUnit) {
         return compilationUnit.findFirst(ClassOrInterfaceDeclaration.class)
                 .map(declaration -> {
                     if (declaration.isInterface() || declaration.isAbstract()) {
@@ -172,11 +184,10 @@ public class PowerHouse {
                 .orElse(0);
     }
 
+    private final Set<String> classNames = new HashSet<>();
+    private final Map<String, Set<String>> dependencies = new HashMap<>();
 
-    private static final Set<String> classNames = new HashSet<>();
-    private static final Map<String, Set<String>> dependencies = new HashMap<>();
-
-    private static void advancedParse(CompilationUnit compilationUnit) {
+    private void advancedParse(CompilationUnit compilationUnit) {
         List<ClassOrInterfaceDeclaration> classDeclaration = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
         for (ClassOrInterfaceDeclaration c : classDeclaration) {
             classNames.add(c.getNameAsString());
@@ -217,13 +228,13 @@ public class PowerHouse {
         }
     }
 
-    private static void trackDependency(String sourceClass, String targetClass) {
+    private void trackDependency(String sourceClass, String targetClass) {
         if (!sourceClass.equals(targetClass)) {
             dependencies.computeIfAbsent(sourceClass, k -> new HashSet<>()).add(targetClass);
         }
     }
 
-    private static void trackExtendedClassAndInterfaces(ClassOrInterfaceDeclaration declaration) {
+    private void trackExtendedClassAndInterfaces(ClassOrInterfaceDeclaration declaration) {
         Optional<ClassOrInterfaceType> extendedClass = declaration.getExtendedTypes().getFirst();
         extendedClass.ifPresent(classOrInterfaceType -> trackDependency(declaration.getNameAsString(), classOrInterfaceType.getNameAsString()));
 
@@ -233,7 +244,7 @@ public class PowerHouse {
         }
     }
 
-    public static void printDependencies() {
+    public void printDependencies() {
         for (String className : dependencies.keySet()) {
             System.out.println("\nClass: " + className + " - Dependencies:");
             for (String dependency : dependencies.get(className)) {
