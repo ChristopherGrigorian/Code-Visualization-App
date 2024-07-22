@@ -15,6 +15,7 @@ public class Main {
             try {
                 PowerHouse ph = PowerHouse.getInstance();
                 ph.parseDirectory(selectedDirectory.toPath());
+                ph.printDependencies();
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
