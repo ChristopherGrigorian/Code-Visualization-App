@@ -10,8 +10,10 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javafx.util.Pair;
 
 public class PowerHouse {
 
@@ -123,5 +125,39 @@ public class PowerHouse {
         return line;
     }
 
+    public ArrayList<Pair<String, String>> getFunctions(String content, CompilationUnit compilationUnit) {
+//        Returns a list of pairs of function names, and their parent class
+        ArrayList<Pair<String, String>> functions = new ArrayList<>();
+        compilationUnit.findAll(ClassOrInterfaceDeclaration.class).forEach(classDeclaration -> {
+            classDeclaration.getMethods().forEach(method -> {
+                functions.add(new Pair<>(method.getNameAsString(), classDeclaration.getNameAsString()));
+            });
+        });
+        return functions;
+    }
+
+    public ArrayList<Pair<String, String>> getFunctionsFromDirectory(String directory) {
+        ArrayList<Pair<String, String>> functions = new ArrayList<>();
+        try (Stream<Path> paths = Files.walk(Path.of(directory))) {
+            paths.filter(Files::isRegularFile)
+                    .filter(p -> p.toString().endsWith(".java"))
+                    .forEach(p -> {
+                        try {
+                            String content = Files.readString(p);
+                            JavaParser parser = new JavaParser();
+                            Optional<CompilationUnit> result = parser.parse(content).getResult();
+                            if (result.isPresent()) {
+                                CompilationUnit compilationUnit = result.get();
+                                functions.addAll(getFunctions(content, compilationUnit));
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return functions;
+    }
 
 }
