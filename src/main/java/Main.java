@@ -11,9 +11,11 @@ public class Main {
         int userSelection = fileChooser.showOpenDialog(null);
 
         if (userSelection == JFileChooser.APPROVE_OPTION) {
+            PowerHouse ph = PowerHouse.getInstance();
             File selectedDirectory = fileChooser.getSelectedFile();
+            ph.setCurDirectory(selectedDirectory);
+
             try {
-                PowerHouse ph = PowerHouse.getInstance();
                 ph.parseDirectory(selectedDirectory.toPath());
                 ph.printDependencies();
             } catch (IOException e) {
