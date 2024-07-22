@@ -20,17 +20,6 @@
             <artifactId>javaparser-core</artifactId>
             <version>3.23.1</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-controls</artifactId>
-            <version>22-ea+11</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.graphstream/gs-ui -->
-        <dependency>
-            <groupId>org.jgrapht</groupId>
-            <artifactId>jgrapht-core</artifactId>
-            <version>1.5.2</version>
-        </dependency>
+
     </dependencies>
 </project>

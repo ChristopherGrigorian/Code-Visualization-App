@@ -1,19 +1,18 @@
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.comments.BlockComment;
-import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.JavadocComment;
-import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.stmt.ForStmt;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
+
+import java.util.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Optional;
 import java.util.stream.Stream;
-import javafx.util.Pair;
 
 public class PowerHouse {
 
@@ -48,7 +47,6 @@ public class PowerHouse {
 
             if (result.isPresent()) {
                 CompilationUnit compilationUnit = result.get();
-                //List<ClassOrInterfaceDeclaration> classDeclarations = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
 
                 int totalLines = getLineCount(content);
                 int commentLines = getCommentLineCount(content, compilationUnit);
@@ -56,12 +54,18 @@ public class PowerHouse {
                 int standaloneBracketLines = getStandaloneBracketLineCount(content);
                 int executableLines = totalLines - commentLines - blankLines - standaloneBracketLines;
                 int logicalLines = getLogicalLineCount(content, compilationUnit);
+                int abstractness = getAbstractness(compilationUnit);
+
+
+                //ClassOrInterfaceDeclaration classDeclaration = compilationUnit.findFirst(ClassOrInterfaceDeclaration.class).orElse(null);
 
                 System.out.println("File: " + filePath);
                 System.out.println("Total Lines (LOC): " + totalLines);
                 System.out.println("Executable Lines (eLOC): " + executableLines);
                 System.out.println("Comment Lines (lLOC): " + commentLines);
                 System.out.println("Logical Lines of Code (lLOC): " + logicalLines);
+                System.out.println("Abstractness: " + abstractness);
+                advancedParse(compilationUnit);
             } else {
                 System.out.println("Error parsing file: " + filePath);
             }
@@ -111,53 +115,93 @@ public class PowerHouse {
                 .count();
 
         long forLoops = compilationUnit.findAll(ForStmt.class).size();
-
-        System.out.println("For loops: " + forLoops);
-        System.out.println("SemiColonLines: " + semiColonLines);
         return (int) (semiColonLines + forLoops);
     }
 
     public static String removeCommentsFromLine(String line) {
-        // Remove single-line comments
         line = line.replaceAll("//.*", "");
-        // Remove multi-line comments
         line = line.replaceAll("/\\*.*?\\*/", "");
         return line;
     }
 
-    public ArrayList<Pair<String, String>> getFunctions(String content, CompilationUnit compilationUnit) {
-//        Returns a list of pairs of function names, and their parent class
-        ArrayList<Pair<String, String>> functions = new ArrayList<>();
-        compilationUnit.findAll(ClassOrInterfaceDeclaration.class).forEach(classDeclaration -> {
-            classDeclaration.getMethods().forEach(method -> {
-                functions.add(new Pair<>(method.getNameAsString(), classDeclaration.getNameAsString()));
-            });
-        });
-        return functions;
+    private static int getAbstractness(CompilationUnit compilationUnit) {
+        return compilationUnit.findFirst(ClassOrInterfaceDeclaration.class)
+                .map(declaration -> {
+                    if (declaration.isInterface() || declaration.isAbstract()) {
+                        return 1;
+                    }
+                    return 0;
+                })
+                .orElse(0);
     }
 
-    public ArrayList<Pair<String, String>> getFunctionsFromDirectory(String directory) {
-        ArrayList<Pair<String, String>> functions = new ArrayList<>();
-        try (Stream<Path> paths = Files.walk(Path.of(directory))) {
-            paths.filter(Files::isRegularFile)
-                    .filter(p -> p.toString().endsWith(".java"))
-                    .forEach(p -> {
-                        try {
-                            String content = Files.readString(p);
-                            JavaParser parser = new JavaParser();
-                            Optional<CompilationUnit> result = parser.parse(content).getResult();
-                            if (result.isPresent()) {
-                                CompilationUnit compilationUnit = result.get();
-                                functions.addAll(getFunctions(content, compilationUnit));
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    });
-        } catch (IOException e) {
-            e.printStackTrace();
+
+    private static final Set<String> classNames = new HashSet<>();
+    private static final Map<String, Set<String>> dependencies = new HashMap<>();
+
+    private static void advancedParse(CompilationUnit compilationUnit) {
+        List<ClassOrInterfaceDeclaration> classDeclaration = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
+        for (ClassOrInterfaceDeclaration c : classDeclaration) {
+            classNames.add(c.getNameAsString());
+
+            System.out.println("\nClass: " + c.getName());
+            for (FieldDeclaration f : c.getFields()) {
+                for (VariableDeclarator v : f.getVariables()) {
+                    Type fieldType = v.getType();
+                    String fieldName = v.getNameAsString();
+
+                    if (fieldType.isClassOrInterfaceType()) {
+                        String referencedClass = fieldType.asClassOrInterfaceType().getNameAsString();
+                        trackDependency(c.getNameAsString(), referencedClass);
+                    }
+
+                    System.out.println("Field: " + fieldName + "Type: " + fieldType);
+                }
+            }
+
+            System.out.println("\nMethods:");
+            for (MethodDeclaration m : c.getMethods()) {
+                System.out.println("> > > Method: " + m.getName());
+                System.out.println("Lines of code: " + (m.getEnd().get().line - m.getBegin().get().line));
+
+                for (Parameter p : m.getParameters()) {
+                    Type paramType = p.getType();
+                    String paramName = p.getNameAsString();
+
+                    if (paramType.isClassOrInterfaceType()) {
+                        String referencedClass = paramType.asClassOrInterfaceType().getNameAsString();
+                        trackDependency(c.getNameAsString(), referencedClass);
+                    }
+
+                    System.out.println("Parameter: " + paramName + "Type: " + paramType);
+                }
+            }
+            trackExtendedClassAndInterfaces(c);
         }
-        return functions;
     }
 
+    private static void trackDependency(String sourceClass, String targetClass) {
+        if (!sourceClass.equals(targetClass)) {
+            dependencies.computeIfAbsent(sourceClass, k -> new HashSet<>()).add(targetClass);
+        }
+    }
+
+    private static void trackExtendedClassAndInterfaces(ClassOrInterfaceDeclaration declaration) {
+        Optional<ClassOrInterfaceType> extendedClass = declaration.getExtendedTypes().getFirst();
+        extendedClass.ifPresent(classOrInterfaceType -> trackDependency(declaration.getNameAsString(), classOrInterfaceType.getNameAsString()));
+
+        List<ClassOrInterfaceType> implementedInterfaces = declaration.getImplementedTypes();
+        for (ClassOrInterfaceType implementedInterface : implementedInterfaces) {
+            trackDependency(declaration.getNameAsString(), implementedInterface.getNameAsString());
+        }
+    }
+
+    public static void printDependencies() {
+        for (String className : dependencies.keySet()) {
+            System.out.println("\nClass: " + className + " - Dependencies:");
+            for (String dependency : dependencies.get(className)) {
+                System.out.println("  - " + dependency);
+            }
+        }
+    }
 }
