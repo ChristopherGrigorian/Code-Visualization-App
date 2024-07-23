@@ -117,7 +117,7 @@ public class PowerHouse {
 
                         // Collect method calls
                         MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
-                        method.accept(methodCallVisitor, null);
+                        method.accept(methodCallVisitor, className);
                         methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
 
                         classMetrics.addMethod(methodMetrics);

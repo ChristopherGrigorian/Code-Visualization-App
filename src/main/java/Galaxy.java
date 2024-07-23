@@ -27,7 +27,10 @@ class Galaxy extends JPanel  {
             g.setColor(classColors.get(f.getParentClass()));
             g.fillOval(f.getX(), f.getY(), 20, 20) ;
             g.drawString(f.getName(), f.getX(), f.getY());
+        }
+        for (Function f : functions) {
             for (Function call : f.getCalls()) {
+                g.setColor(Color.BLACK);
                 g.drawLine(f.getX()+10, f.getY()+10, call.getX()+10, call.getY()+10);
                 // Draw arrow head
                 int x1 = f.getX()+10;
