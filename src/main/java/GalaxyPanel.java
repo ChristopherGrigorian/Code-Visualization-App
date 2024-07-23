@@ -29,12 +29,12 @@ public class GalaxyPanel extends JPanel {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setPreferredSize(new Dimension(200, 800));
         sidebar.setPreferredSize(new Dimension(200, 800));
-
-
+        JPanel controlPanel = new GalaxyControlPanel();
         // Add galaxy and sidebar to panel
         this.setLayout(new BorderLayout());
         this.add(galaxy, BorderLayout.CENTER);
         this.add(scrollPane, BorderLayout.EAST);
+        this.add(controlPanel, BorderLayout.WEST);
         this.setSize(1200, 800);
     }
 }

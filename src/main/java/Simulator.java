@@ -16,10 +16,11 @@ public class Simulator {
     private static final double LINK_FORCE = 0.5;
     private static final double VERTEX_FORCE = 5000;
     private static final double WALL_FORCE = 1;
-    private static final int WALL_RIGHT = 950;
+    private static final int WALL_RIGHT = 750;
     private static final int WALL_BOTTOM = 725;
     private static final double EQUILIBRIUM_DISTANCE = 100;
     private static final int WALL_MARGIN = 50;
+    private boolean updating = true;
 
     private Simulator() {
         this.functions = new ArrayList<>();
@@ -37,7 +38,7 @@ public class Simulator {
     }
 
     public void simulateTime() {
-        if (functions == null || functions.isEmpty()) {
+        if (functions == null || functions.isEmpty() || !updating) {
             return; // No functions to simulate
         }
 
@@ -141,5 +142,13 @@ public class Simulator {
 
         f.setX(newX);
         f.setY(newY);
+    }
+
+    public void pauseSimulation() {
+        updating = false;
+    }
+
+    public void resumeSimulation() {
+        updating = true;
     }
 }
