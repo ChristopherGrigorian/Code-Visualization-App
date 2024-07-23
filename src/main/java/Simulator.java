@@ -1,6 +1,4 @@
 import java.util.ArrayList;
-
-
 /**
  * This class is responsible for simulating the movement of functions in the galaxy plot.
  * It calculates the forces acting on each function and updates their positions accordingly.

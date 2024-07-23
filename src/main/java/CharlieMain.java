@@ -50,7 +50,7 @@ public class CharlieMain extends JFrame {
                 functions.get(i).addCall(functions.get(i - 2));
             }
         }
-        JPanel galaxy = new Galaxy(functions);
+        JPanel galaxy = new GalaxyPanel(functions);
         JPanel test1 = new JPanel();
         test1.setBackground(new java.awt.Color(255, 255, 255));
         JPanel test2 = new JPanel();
