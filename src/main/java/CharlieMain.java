@@ -23,17 +23,32 @@ public class CharlieMain extends JFrame {
 //        BasicVisualizationServer<String, String> visualGraph = Galaxy.getGraph(functions);
         JFrame frame = new CharlieMain();
         frame.setTitle("Galaxy Plot");
-        frame.setSize(1200, 600);
+        frame.setSize(1200, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
         frame.setVisible(true);
+        Simulator simulator = Simulator.getInstance();
+        while (true) {
+//            simulator.simulateTime();
+            frame.repaint();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
     public CharlieMain () {
         ArrayList<Function> functions = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 30; i++) {
             functions.add(new Function("Function" + i, "Class" + i, i));
+            if (i % 3 == 0 && i != 0) {
+                functions.get(i).addCall(functions.get(i - 1));
+            } else if (i % 2 == 0 && i != 0) {
+                functions.get(i).addCall(functions.get(i - 2));
+            }
         }
         JPanel galaxy = new Galaxy(functions);
         JPanel test1 = new JPanel();
@@ -52,7 +67,5 @@ public class CharlieMain extends JFrame {
         tabs.addTab("Test3", test3);
         tabs.addTab("Test4", test4);
         add(tabs, BorderLayout.CENTER);
-        galaxy.repaint();
-
     }
 }
