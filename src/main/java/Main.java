@@ -17,7 +17,7 @@ public class Main {
 
             try {
                 ph.parseDirectory(selectedDirectory.toPath());
-                ph.printDependencies();
+                ph.printMetrics();
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }

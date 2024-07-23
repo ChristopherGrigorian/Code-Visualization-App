@@ -13,7 +13,6 @@ import java.util.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.stream.Stream;
 //import javafx.util.Pair;
@@ -23,8 +22,11 @@ public class PowerHouse {
     private static PowerHouse instance;
     private static File curDirectory;
 
+    private Map<String, ClassMetrics> classMetricsMap;
+
     private PowerHouse() {
         super();
+        this.classMetricsMap = new HashMap<>();
     }
 
     public static PowerHouse getInstance() {
@@ -32,6 +34,10 @@ public class PowerHouse {
             instance = new PowerHouse();
         }
         return instance;
+    }
+
+    public Map<String, ClassMetrics> getClassMetricsMap() {
+        return classMetricsMap;
     }
 
     public File getCurDirectory() {
@@ -69,16 +75,49 @@ public class PowerHouse {
                 int logicalLines = getLogicalLineCount(content, compilationUnit);
                 int abstractness = getAbstractness(compilationUnit);
 
+                List<ClassOrInterfaceDeclaration> classDeclarations = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
+                for (ClassOrInterfaceDeclaration classDeclaration : classDeclarations) {
+                    String className = classDeclaration.getNameAsString();
+                    ClassMetrics classMetrics = new ClassMetrics(className);
 
-                //ClassOrInterfaceDeclaration classDeclaration = compilationUnit.findFirst(ClassOrInterfaceDeclaration.class).orElse(null);
+                    classMetrics.setTotalLines(totalLines);
+                    classMetrics.setCommentLines(commentLines);
+                    classMetrics.setBlankLines(blankLines);
+                    classMetrics.setStandaloneBracketLines(standaloneBracketLines);
+                    classMetrics.setExecutableLines(executableLines);
+                    classMetrics.setLogicalLines(logicalLines);
+                    classMetrics.setAbstractness(abstractness);
 
-                System.out.println("File: " + filePath);
-                System.out.println("Total Lines (LOC): " + totalLines);
-                System.out.println("Executable Lines (eLOC): " + executableLines);
-                System.out.println("Comment Lines (lLOC): " + commentLines);
-                System.out.println("Logical Lines of Code (lLOC): " + logicalLines);
-                System.out.println("Abstractness: " + abstractness);
-                advancedParse(compilationUnit);
+                    for (FieldDeclaration field : classDeclaration.getFields()) {
+                        for (VariableDeclarator variable : field.getVariables()) {
+                            Type fieldType = variable.getType();
+                            if (fieldType.isClassOrInterfaceType()) {
+                                String referencedClass = fieldType.asClassOrInterfaceType().getNameAsString();
+                                classMetrics.addDependency(referencedClass);
+                            }
+                        }
+                    }
+
+                    for (MethodDeclaration method : classDeclaration.getMethods()) {
+
+                        MethodMetrics methodMetrics = new MethodMetrics(method.getNameAsString(),
+                                method.getEnd().get().line - method.getBegin().get().line);
+
+                        for (Parameter parameter : method.getParameters()) {
+                            String paramName = parameter.getNameAsString();
+                            Type paramType = parameter.getType();
+                            methodMetrics.addParameter(new ParameterMetrics(paramName, paramType.toString()));
+
+                            if (paramType.isClassOrInterfaceType()) {
+                                String referencedClass = paramType.asClassOrInterfaceType().getNameAsString();
+                                classMetrics.addDependency(referencedClass);
+                            }
+                        }
+                        classMetrics.addMethod(methodMetrics);
+                    }
+                    trackExtendedClassAndInterfaces(classDeclaration, classMetrics);
+                    classMetricsMap.put(className, classMetrics);
+                }
             } else {
                 System.out.println("Error parsing file: " + filePath);
             }
@@ -184,72 +223,33 @@ public class PowerHouse {
                 .orElse(0);
     }
 
-    private final Set<String> classNames = new HashSet<>();
-    private final Map<String, Set<String>> dependencies = new HashMap<>();
-
-    private void advancedParse(CompilationUnit compilationUnit) {
-        List<ClassOrInterfaceDeclaration> classDeclaration = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
-        for (ClassOrInterfaceDeclaration c : classDeclaration) {
-            classNames.add(c.getNameAsString());
-
-            System.out.println("\nClass: " + c.getName());
-            for (FieldDeclaration f : c.getFields()) {
-                for (VariableDeclarator v : f.getVariables()) {
-                    Type fieldType = v.getType();
-                    String fieldName = v.getNameAsString();
-
-                    if (fieldType.isClassOrInterfaceType()) {
-                        String referencedClass = fieldType.asClassOrInterfaceType().getNameAsString();
-                        trackDependency(c.getNameAsString(), referencedClass);
-                    }
-
-                    System.out.println("Field: " + fieldName + "Type: " + fieldType);
-                }
-            }
-
-            System.out.println("\nMethods:");
-            for (MethodDeclaration m : c.getMethods()) {
-                System.out.println("> > > Method: " + m.getName());
-                System.out.println("Lines of code: " + (m.getEnd().get().line - m.getBegin().get().line));
-
-                for (Parameter p : m.getParameters()) {
-                    Type paramType = p.getType();
-                    String paramName = p.getNameAsString();
-
-                    if (paramType.isClassOrInterfaceType()) {
-                        String referencedClass = paramType.asClassOrInterfaceType().getNameAsString();
-                        trackDependency(c.getNameAsString(), referencedClass);
-                    }
-
-                    System.out.println("Parameter: " + paramName + "Type: " + paramType);
-                }
-            }
-            trackExtendedClassAndInterfaces(c);
-        }
-    }
-
-    private void trackDependency(String sourceClass, String targetClass) {
-        if (!sourceClass.equals(targetClass)) {
-            dependencies.computeIfAbsent(sourceClass, k -> new HashSet<>()).add(targetClass);
-        }
-    }
-
-    private void trackExtendedClassAndInterfaces(ClassOrInterfaceDeclaration declaration) {
+    private void trackExtendedClassAndInterfaces(ClassOrInterfaceDeclaration declaration, ClassMetrics classMetrics) {
         Optional<ClassOrInterfaceType> extendedClass = declaration.getExtendedTypes().getFirst();
-        extendedClass.ifPresent(classOrInterfaceType -> trackDependency(declaration.getNameAsString(), classOrInterfaceType.getNameAsString()));
+        extendedClass.ifPresent(classOrInterfaceType -> classMetrics.addDependency(classOrInterfaceType.getNameAsString()));
 
         List<ClassOrInterfaceType> implementedInterfaces = declaration.getImplementedTypes();
         for (ClassOrInterfaceType implementedInterface : implementedInterfaces) {
-            trackDependency(declaration.getNameAsString(), implementedInterface.getNameAsString());
+            classMetrics.addDependency(implementedInterface.getNameAsString());
         }
     }
 
-    public void printDependencies() {
-        for (String className : dependencies.keySet()) {
-            System.out.println("\nClass: " + className + " - Dependencies:");
-            for (String dependency : dependencies.get(className)) {
-                System.out.println("  - " + dependency);
+    public void printMetrics() {
+        for (ClassMetrics metrics : classMetricsMap.values()) {
+            System.out.println("\nClass: " + metrics.getClassName());
+            System.out.println("Total Lines (LOC): " + metrics.getTotalLines());
+            System.out.println("Executable Lines (eLOC): " + metrics.getExecutableLines());
+            System.out.println("Comment Lines: " + metrics.getCommentLines());
+            System.out.println("Logical Lines of Code (lLOC): " + metrics.getLogicalLines());
+            System.out.println("Abstractness: " + metrics.getAbstractness());
+            System.out.println("Dependencies: " + metrics.getDependencies());
+
+            for (MethodMetrics method : metrics.getMethods()) {
+                System.out.println("  Method: " + method.getMethodName() + " - Lines of code: " + method.getLinesOfCode());
+                for (ParameterMetrics param : method.getParameters()) {
+                    System.out.println("    Parameter: " + param.getParamName() + " - Type: " + param.getParamType());
+                }
             }
         }
     }
+
 }
