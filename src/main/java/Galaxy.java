@@ -7,8 +7,9 @@ import java.util.ArrayList;
 
 class Galaxy extends JPanel  {
 //    DirectedSparseMultigraph<String, String> graph = new DirectedSparseMultigraph<>();
-
-    public Galaxy () {
+    private ArrayList<Function> functions;
+    public Galaxy (ArrayList<Function> functions) {
+        this.functions = functions;
         setBackground(new Color(176, 250, 192));
     }
 

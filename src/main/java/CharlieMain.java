@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import javafx.util.Pair;
 import java.awt.BorderLayout;
@@ -30,7 +31,11 @@ public class CharlieMain extends JFrame {
     }
 
     public CharlieMain () {
-        JPanel galaxy = new Galaxy();
+        ArrayList<Function> functions = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            functions.add(new Function("Function" + i, "Class" + i, i));
+        }
+        JPanel galaxy = new Galaxy(functions);
         JPanel test1 = new JPanel();
         test1.setBackground(new java.awt.Color(255, 255, 255));
         JPanel test2 = new JPanel();
