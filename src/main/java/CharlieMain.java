@@ -1,9 +1,7 @@
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import javafx.util.Pair;
 import java.awt.BorderLayout;
 import java.util.Map;
 
@@ -20,10 +18,6 @@ public class CharlieMain extends JFrame {
      * @author Charlie Ray
      */
     public static void main(String[] args) {
-//        JFrame frame = new JFrame("Galaxy Plot");
-//        PowerHouse ph = PowerHouse.getInstance();
-//        ArrayList<Pair<String, String>> functions = ph.getFunctionsFromDirectory("/Users/charlieray/Desktop/School/CSC 307/finalproj/src");
-//        BasicVisualizationServer<String, String> visualGraph = Galaxy.getGraph(functions);
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Load Source Folder");
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);

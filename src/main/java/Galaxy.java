@@ -1,6 +1,3 @@
-import javafx.util.Pair;
-
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -54,22 +51,6 @@ class Galaxy extends JPanel  {
         g.drawLine(0, 725, 1000, 725);
 
         simulator.simulateTime();
-    }
-
-
-     static void getGraphExample() {
-
-     }
-
-    static void getGraph(ArrayList<Pair<String, String>> functions) {
-       // Get unique colors for each class, classes are stored as the second element in the pair
-          ArrayList<String> uniqueClasses = new ArrayList<>();
-          for (Pair<String, String> func : functions) {
-             if (!uniqueClasses.contains(func.getValue())) {
-                uniqueClasses.add(func.getValue());
-             }
-          }
-          ArrayList<Color> colors = getDistinctColors(uniqueClasses.size());
     }
 
     public ArrayList<String> getUniqueClasses() {
