@@ -1,12 +1,35 @@
 import javafx.util.Pair;
-import org.jgrapht.*;
 
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-class Galaxy {
+class Galaxy extends JPanel  {
 //    DirectedSparseMultigraph<String, String> graph = new DirectedSparseMultigraph<>();
+
+    public Galaxy () {
+        setBackground(new Color(176, 250, 192));
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+//        Overseer overseer = Overseer.getInstance();
+        super.paintComponent(g);
+        for (int i = 0; i < 10; i++) {
+//            Draw random circles
+            g.setColor(new Color((int) (Math.random() * 0x1000000)));
+            g.fillOval((int) (Math.random() * 1200), (int) (Math.random() * 600), 50, 50);
+
+        }
+//        for (Component s : overseer.getStack()) {
+//            s.drawShape(g);
+//        }
+//        if (overseer.getBox() != null) {
+//            overseer.getBox().drawShape(g);
+//        }
+    }
+
 
      static void getGraphExample() {
 

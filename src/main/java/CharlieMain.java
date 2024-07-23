@@ -1,8 +1,9 @@
 import javax.swing.*;
 import java.util.ArrayList;
 import javafx.util.Pair;
+import java.awt.BorderLayout;
 
-public class CharlieMain {
+public class CharlieMain extends JFrame {
     /**
      * This class is intentionally made very bland and simple
      * In the hopes that it will make it easier to merge later
@@ -16,14 +17,37 @@ public class CharlieMain {
      */
     public static void main(String[] args) {
 //        JFrame frame = new JFrame("Galaxy Plot");
-        PowerHouse ph = PowerHouse.getInstance();
-        ArrayList<Pair<String, String>> functions = ph.getFunctionsFromDirectory("/Users/charlieray/Desktop/School/CSC 307/finalproj/src");
+//        PowerHouse ph = PowerHouse.getInstance();
+//        ArrayList<Pair<String, String>> functions = ph.getFunctionsFromDirectory("/Users/charlieray/Desktop/School/CSC 307/finalproj/src");
 //        BasicVisualizationServer<String, String> visualGraph = Galaxy.getGraph(functions);
-        JFrame frame = new JFrame("Galaxy Plot");
+        JFrame frame = new CharlieMain();
+        frame.setTitle("Galaxy Plot");
+        frame.setSize(1200, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        frame.getContentPane().add(visualGraph);
-        frame.pack();
+        frame.setResizable(false);
         frame.setVisible(true);
+
+    }
+
+    public CharlieMain () {
+        JPanel galaxy = new Galaxy();
+        JPanel test1 = new JPanel();
+        test1.setBackground(new java.awt.Color(255, 255, 255));
+        JPanel test2 = new JPanel();
+        test2.setBackground(new java.awt.Color(255, 0, 0));
+        JPanel test3 = new JPanel();
+        test3.setBackground(new java.awt.Color(0, 255, 0));
+        JPanel test4 = new JPanel();
+        test4.setBackground(new java.awt.Color(0, 0, 255));
+//        Create tabs to switch between panels
+        JTabbedPane tabs = new JTabbedPane();
+        tabs.addTab("Galaxy", galaxy);
+        tabs.addTab("Test1", test1);
+        tabs.addTab("Test2", test2);
+        tabs.addTab("Test3", test3);
+        tabs.addTab("Test4", test4);
+        add(tabs, BorderLayout.CENTER);
+        galaxy.repaint();
 
     }
 }
