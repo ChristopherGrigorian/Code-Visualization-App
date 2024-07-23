@@ -114,6 +114,12 @@ public class PowerHouse {
                                 classMetrics.addOutgoingDependency(referencedClass);
                             }
                         }
+
+                        // Collect method calls
+                        MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
+                        method.accept(methodCallVisitor, null);
+                        methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
+
                         classMetrics.addMethod(methodMetrics);
                     }
 

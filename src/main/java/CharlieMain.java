@@ -1,8 +1,11 @@
 import javax.swing.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import javafx.util.Pair;
 import java.awt.BorderLayout;
+import java.util.Map;
 
 public class CharlieMain extends JFrame {
     /**
@@ -21,35 +24,100 @@ public class CharlieMain extends JFrame {
 //        PowerHouse ph = PowerHouse.getInstance();
 //        ArrayList<Pair<String, String>> functions = ph.getFunctionsFromDirectory("/Users/charlieray/Desktop/School/CSC 307/finalproj/src");
 //        BasicVisualizationServer<String, String> visualGraph = Galaxy.getGraph(functions);
-        JFrame frame = new CharlieMain();
-        frame.setTitle("Galaxy Plot");
-        frame.setSize(1200, 800);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-        frame.setVisible(true);
-        Simulator simulator = Simulator.getInstance();
-        while (true) {
-//            simulator.simulateTime();
-            frame.repaint();
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Load Source Folder");
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        int userSelection = fileChooser.showOpenDialog(null);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            PowerHouse ph = PowerHouse.getInstance();
+            File selectedDirectory = fileChooser.getSelectedFile();
+            ph.setCurDirectory(selectedDirectory);
+
             try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                ph.parseDirectory(selectedDirectory.toPath());
+                JFrame frame = new CharlieMain(ph);
+                frame.setTitle("Galaxy Plot");
+                frame.setSize(1200, 800);
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setResizable(false);
+                frame.setVisible(true);
+                Simulator simulator = Simulator.getInstance();
+                while (true) {
+//            simulator.simulateTime();
+                    frame.repaint();
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
 
     }
 
-    public CharlieMain () {
+    public CharlieMain (PowerHouse ph) {
+        Map<String, ClassMetrics> metrics = ph.getClassMetricsMap();
         ArrayList<Function> functions = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
-            functions.add(new Function("Function" + i, "Class" + i, i));
-            if (i % 3 == 0 && i != 0) {
-                functions.get(i).addCall(functions.get(i - 1));
-                functions.get(i-1).addCalledBy(functions.get(i));
-            } else if (i % 2 == 0 && i != 0) {
-                functions.get(i).addCall(functions.get(i - 2));
-                functions.get(i-2).addCalledBy(functions.get(i));
+        for (ClassMetrics metric : metrics.values()) {
+            String className = metric.getClassName();
+            for (MethodMetrics method : metric.getMethods()) {
+                Function f = new Function(method.getMethodName(), className, method.getLinesOfCode());
+                functions.add(f);
+            }
+        }
+//        add relationships
+        for (ClassMetrics metric : metrics.values()) {
+            String callerClassName = metric.getClassName();
+            for (MethodMetrics method : metric.getMethods()) {
+                String callerFunctionName = method.getMethodName();
+                Function caller = null;
+                for (Function f : functions) {
+                    if (f.getName().equals(callerFunctionName) && f.getParentClass().equals(callerClassName)) {
+                        caller = f;
+                        break;
+                    }
+                }
+                boolean found = false;
+                if (caller.getName().equals("updateGrid") && caller.getParentClass().equals("Genuis")) {
+                    System.out.println("Found it");
+                    System.out.println(caller.getName() + " " + caller.getParentClass());
+                    found = true;
+                }
+                for (MethodCallDetails call : method.getMethodCalls()) {
+                    String calleeClassName = call.getParentClass();
+                    String calleeFunctionName = call.getMethodName();
+                    if (found) {
+                        System.out.println(calleeFunctionName + " " + calleeClassName);
+                    }
+                    Function callee = null;
+                    for (Function f : functions) {
+                        if (found) {
+                            System.out.println("Checking " + f.getName() + " " + f.getParentClass());
+                        }
+                        String upperFName = f.getName().toUpperCase();
+                        String upperCName = calleeFunctionName.toUpperCase();
+                        String upperFClass = f.getParentClass().toUpperCase();
+                        String upperCClass = calleeClassName.toUpperCase();
+                        if (upperFName.equals(upperCName) && upperFClass.equals(upperCClass)) {
+                            System.out.println("Found it");
+                            callee = f;
+                            break;
+                        }
+                        if (f.getName().equals(calleeFunctionName) && f.getParentClass().equals(calleeClassName)) {
+                            callee = f;
+                            break;
+                        }
+                    }
+                    if (caller != null && callee != null) {
+                        caller.addCall(callee);
+                        callee.addCalledBy(caller);
+                    }
+                }
             }
         }
         JPanel galaxy = new GalaxyPanel(functions);

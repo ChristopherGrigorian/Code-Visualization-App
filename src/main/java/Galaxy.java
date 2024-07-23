@@ -15,7 +15,7 @@ class Galaxy extends JPanel  {
     public Galaxy (ArrayList<Function> functions) {
         this.functions = functions;
         setBackground(new Color(176, 250, 192));
-        this.classColors = getClassColors();
+        this.classColors = generateClassColors();
         simulator.setFunctions(functions);
     }
 
@@ -79,13 +79,17 @@ class Galaxy extends JPanel  {
         return uniqueClasses;
     }
 
-    public Map<String, Color> getClassColors() {
+    public Map<String, Color> generateClassColors() {
         ArrayList<String> uniqueClasses = getUniqueClasses();
         ArrayList<Color> colors = getDistinctColors(uniqueClasses.size());
         Map<String, Color> classColors = new HashMap<>();
         for (int i = 0; i < uniqueClasses.size(); i++) {
             classColors.put(uniqueClasses.get(i), colors.get(i));
         }
+        return classColors;
+    }
+
+    public Map<String, Color> getClassColors() {
         return classColors;
     }
 

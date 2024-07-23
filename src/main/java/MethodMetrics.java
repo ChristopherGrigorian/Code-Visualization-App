@@ -6,12 +6,14 @@ public class MethodMetrics {
     private int linesOfCode;
     private int cyclomaticComplexity;
     private List<ParameterMetrics> parameters;
+    private List<MethodCallDetails> methodCalls;
 
     public MethodMetrics(String methodName, int linesOfCode) {
         this.methodName = methodName;
         this.linesOfCode = linesOfCode;
         this.cyclomaticComplexity = 1;
         this.parameters = new ArrayList<>();
+        this.methodCalls = new ArrayList<>();
     }
 
     public List<ParameterMetrics> getParameters() {
@@ -45,4 +47,8 @@ public class MethodMetrics {
     public void setCyclomaticComplexity(int cyclomaticComplexity) {
         this.cyclomaticComplexity = cyclomaticComplexity;
     }
+
+    public List<MethodCallDetails> getMethodCalls() { return methodCalls; }
+
+    public void setMethodCalls(List<MethodCallDetails> methodCalls) { this.methodCalls = methodCalls; }
 }
