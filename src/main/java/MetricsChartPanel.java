@@ -37,8 +37,8 @@ public class MetricsChartPanel extends JPanel {
         plot.getRangeAxis().setRange(-0.1, 1.1);
 
         XYShapeRenderer renderer = new XYShapeRenderer();
-        renderer.setSeriesShape(0, new Ellipse2D.Double(-4, -4, 12, 12)); // Adjust the size here
-        renderer.setSeriesPaint(0, Color.RED); // Optionally set the color
+        renderer.setSeriesShape(0, new Ellipse2D.Double(-4, -4, 12, 12));
+        renderer.setSeriesPaint(0, Color.RED);
 
         plot.setRenderer(renderer);
 
