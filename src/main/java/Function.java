@@ -12,6 +12,7 @@ public class Function {
 
 
     private ArrayList<Function> calls = new ArrayList<>();
+    private ArrayList<Function> calledBy = new ArrayList<>();
 
     public Function(String name, String parentClass, int length) {
         this.name = name;
@@ -37,8 +38,16 @@ public class Function {
         calls.add(f);
     }
 
+    public void addCalledBy(Function f) {
+        calledBy.add(f);
+    }
+
     public ArrayList<Function> getCalls() {
         return calls;
+    }
+
+    public ArrayList<Function> getCalledBy() {
+        return calledBy;
     }
 
     public int getX() {

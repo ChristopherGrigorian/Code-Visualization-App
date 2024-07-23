@@ -59,6 +59,10 @@ public class Simulator {
         totalXforce += linkForces[0];
         totalYforce += linkForces[1];
 
+        double[] reverseLinkForces = calculateReverseLinkForces(f);
+        totalXforce += reverseLinkForces[0];
+        totalYforce += reverseLinkForces[1];
+
         double[] vertexForces = calculateVertexForces(f);
         totalXforce += vertexForces[0];
         totalYforce += vertexForces[1];
@@ -77,6 +81,24 @@ public class Simulator {
         for (Function call : f.getCalls()) {
             int dx = call.getX() - f.getX();
             int dy = call.getY() - f.getY();
+            double distance = Math.sqrt(dx * dx + dy * dy);
+            double force = (distance - EQUILIBRIUM_DISTANCE) * LINK_FORCE;
+            if (distance != 0) {
+                totalXforce += force * (dx / distance);
+                totalYforce += force * (dy / distance);
+            }
+        }
+
+        return new double[]{totalXforce, totalYforce};
+    }
+
+    private double[] calculateReverseLinkForces(Function f) {
+        double totalXforce = 0;
+        double totalYforce = 0;
+
+        for (Function calledBy : f.getCalledBy()) {
+            int dx = calledBy.getX() - f.getX();
+            int dy = calledBy.getY() - f.getY();
             double distance = Math.sqrt(dx * dx + dy * dy);
             double force = (distance - EQUILIBRIUM_DISTANCE) * LINK_FORCE;
             if (distance != 0) {

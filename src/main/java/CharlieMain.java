@@ -46,8 +46,10 @@ public class CharlieMain extends JFrame {
             functions.add(new Function("Function" + i, "Class" + i, i));
             if (i % 3 == 0 && i != 0) {
                 functions.get(i).addCall(functions.get(i - 1));
+                functions.get(i-1).addCalledBy(functions.get(i));
             } else if (i % 2 == 0 && i != 0) {
                 functions.get(i).addCall(functions.get(i - 2));
+                functions.get(i-2).addCalledBy(functions.get(i));
             }
         }
         JPanel galaxy = new GalaxyPanel(functions);
