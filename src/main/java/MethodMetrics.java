@@ -4,11 +4,13 @@ import java.util.List;
 public class MethodMetrics {
     private String methodName;
     private int linesOfCode;
+    private int cyclomaticComplexity;
     private List<ParameterMetrics> parameters;
 
     public MethodMetrics(String methodName, int linesOfCode) {
         this.methodName = methodName;
         this.linesOfCode = linesOfCode;
+        this.cyclomaticComplexity = 1;
         this.parameters = new ArrayList<>();
     }
 
@@ -34,5 +36,13 @@ public class MethodMetrics {
 
     public void setLinesOfCode(int linesOfCode) {
         this.linesOfCode = linesOfCode;
+    }
+
+    public int getCyclomaticComplexity() {
+        return cyclomaticComplexity;
+    }
+
+    public void setCyclomaticComplexity(int cyclomaticComplexity) {
+        this.cyclomaticComplexity = cyclomaticComplexity;
     }
 }

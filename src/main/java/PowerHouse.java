@@ -93,38 +93,50 @@ public class PowerHouse {
                             Type fieldType = variable.getType();
                             if (fieldType.isClassOrInterfaceType()) {
                                 String referencedClass = fieldType.asClassOrInterfaceType().getNameAsString();
-                                classMetrics.addDependency(referencedClass);
+                                classMetrics.addOutgoingDependency(referencedClass);
                             }
                         }
                     }
 
                     for (MethodDeclaration method : classDeclaration.getMethods()) {
-
                         MethodMetrics methodMetrics = new MethodMetrics(method.getNameAsString(),
                                 method.getEnd().get().line - method.getBegin().get().line);
+
+                        int cyclomaticComplexity = calculateCyclomaticComplexity(method);
+                        methodMetrics.setCyclomaticComplexity(cyclomaticComplexity);
 
                         for (Parameter parameter : method.getParameters()) {
                             String paramName = parameter.getNameAsString();
                             Type paramType = parameter.getType();
                             methodMetrics.addParameter(new ParameterMetrics(paramName, paramType.toString()));
-
                             if (paramType.isClassOrInterfaceType()) {
                                 String referencedClass = paramType.asClassOrInterfaceType().getNameAsString();
-                                classMetrics.addDependency(referencedClass);
+                                classMetrics.addOutgoingDependency(referencedClass);
                             }
                         }
                         classMetrics.addMethod(methodMetrics);
                     }
+
                     trackExtendedClassAndInterfaces(classDeclaration, classMetrics);
                     classMetricsMap.put(className, classMetrics);
+
                 }
             } else {
                 System.out.println("Error parsing file: " + filePath);
             }
 
+            populateIncomingDependencies();
+            populateInstabilityAndDistance();
+
         } catch (IOException e) {
             throw new RuntimeException("IOException occurred while parsing file: " + filePath, e);
         }
+    }
+
+    private int calculateCyclomaticComplexity(MethodDeclaration method) {
+        CyclomaticComplexityVisitor visitor = new CyclomaticComplexityVisitor();
+        method.accept(visitor, null);
+        return visitor.getComplexity();
     }
 
     public int getLineCount(String content) throws IOException {
@@ -225,11 +237,32 @@ public class PowerHouse {
 
     private void trackExtendedClassAndInterfaces(ClassOrInterfaceDeclaration declaration, ClassMetrics classMetrics) {
         Optional<ClassOrInterfaceType> extendedClass = declaration.getExtendedTypes().getFirst();
-        extendedClass.ifPresent(classOrInterfaceType -> classMetrics.addDependency(classOrInterfaceType.getNameAsString()));
+        extendedClass.ifPresent(classOrInterfaceType -> classMetrics.addOutgoingDependency(classOrInterfaceType.getNameAsString()));
 
         List<ClassOrInterfaceType> implementedInterfaces = declaration.getImplementedTypes();
         for (ClassOrInterfaceType implementedInterface : implementedInterfaces) {
-            classMetrics.addDependency(implementedInterface.getNameAsString());
+            classMetrics.addOutgoingDependency(implementedInterface.getNameAsString());
+        }
+    }
+
+    private void populateIncomingDependencies() {
+        for (ClassMetrics metrics : classMetricsMap.values()) {
+            for (String dependency : metrics.getOutgoingDependencies()) {
+                ClassMetrics dependentClassMetrics = classMetricsMap.get(dependency);
+                if (dependentClassMetrics != null) {
+                    dependentClassMetrics.addIncomingDependency(metrics.getClassName());
+                }
+
+            }
+        }
+    }
+
+    private void populateInstabilityAndDistance() {
+        for (ClassMetrics metrics : classMetricsMap.values()) {
+            int outgoing = metrics.getOutgoingDependencies().size();
+            int incoming = metrics.getIncomingDependencies().size();
+            metrics.setInstability((double) outgoing / (incoming + outgoing));
+            metrics.setDistance(Math.abs(metrics.getAbstractness() + metrics.getInstability() - 1));
         }
     }
 
@@ -241,15 +274,18 @@ public class PowerHouse {
             System.out.println("Comment Lines: " + metrics.getCommentLines());
             System.out.println("Logical Lines of Code (lLOC): " + metrics.getLogicalLines());
             System.out.println("Abstractness: " + metrics.getAbstractness());
-            System.out.println("Dependencies: " + metrics.getDependencies());
+            System.out.println("Instability: " + metrics.getInstability());
+            System.out.println("Distance: " + metrics.getDistance());
+            System.out.println("Outgoing Dependencies: " + metrics.getOutgoingDependencies());
+            System.out.println("Incoming Dependencies: " + metrics.getIncomingDependencies());
+            System.out.println("Highest Cyclomatic Complexity: " + metrics.getHighestCyclomaticComplexity());
 
             for (MethodMetrics method : metrics.getMethods()) {
-                System.out.println("  Method: " + method.getMethodName() + " - Lines of code: " + method.getLinesOfCode());
+                System.out.println("  Method: " + method.getMethodName() + " - Lines of code: " + method.getLinesOfCode() + " - Cyclomatic Complexity: " + method.getCyclomaticComplexity());
                 for (ParameterMetrics param : method.getParameters()) {
                     System.out.println("    Parameter: " + param.getParamName() + " - Type: " + param.getParamType());
                 }
             }
         }
     }
-
 }

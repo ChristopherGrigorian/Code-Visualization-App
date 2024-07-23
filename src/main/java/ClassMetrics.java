@@ -13,22 +13,35 @@ public class ClassMetrics {
     private int executableLines;
     private int logicalLines;
     private int abstractness;
+    private double instability;
+    private double distance;
+    private int highestCyclomaticComplexity;
 
-    private Set<String> dependencies;
+    private Set<String> outgoingDependencies;
+    private Set<String> incomingDependencies;
     private List<MethodMetrics> methods;
 
     public ClassMetrics(String className) {
         this.className = className;
-        this.dependencies = new HashSet<>();
+        this.outgoingDependencies = new HashSet<>();
+        this.incomingDependencies = new HashSet<>();
         this.methods = new ArrayList<>();
+        this.highestCyclomaticComplexity = 0;
     }
 
-    public void addDependency(String dependency) {
-        dependencies.add(dependency);
+    public void addOutgoingDependency(String dependency) {
+        outgoingDependencies.add(dependency);
+    }
+
+    public void addIncomingDependency(String dependency) {
+        incomingDependencies.add(dependency);
     }
 
     public void addMethod(MethodMetrics method) {
         methods.add(method);
+        if (method.getCyclomaticComplexity() > highestCyclomaticComplexity) {
+            highestCyclomaticComplexity = method.getCyclomaticComplexity();
+        }
     }
 
     public String getClassName() {
@@ -91,12 +104,35 @@ public class ClassMetrics {
         this.standaloneBracketLines = standaloneBracketLines;
     }
 
-    public Set<String> getDependencies() {
-        return dependencies;
+    public Set<String> getOutgoingDependencies() {
+        return outgoingDependencies;
+    }
+
+    public Set<String> getIncomingDependencies() {
+        return incomingDependencies;
     }
 
     public List<MethodMetrics> getMethods() {
         return methods;
     }
 
+    public double getInstability() {
+        return instability;
+    }
+
+    public void setInstability(double instability) {
+        this.instability = instability;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+    public int getHighestCyclomaticComplexity() {
+        return highestCyclomaticComplexity;
+    }
 }
