@@ -3,6 +3,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author christophergrigorian
+ */
+
 public class ClassMetrics {
 
     private String className;

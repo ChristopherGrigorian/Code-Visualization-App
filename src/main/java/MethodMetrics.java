@@ -1,6 +1,11 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author christophergrigorian
+ * @author Charlie Ray (Method Calls)
+ */
+
 public class MethodMetrics {
     private String methodName;
     private int linesOfCode;

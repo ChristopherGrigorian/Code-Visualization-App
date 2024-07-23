@@ -7,6 +7,7 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.*;
 
@@ -15,6 +16,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+
+/**
+ * @author christophergrigorian
+ * @author Charlie Ray (Imbedded Method Calls -> MethodCallVisitor, MethodCallDetails
+ */
 
 public class PowerHouse {
 
@@ -231,29 +238,6 @@ public class PowerHouse {
             int incoming = metrics.getIncomingDependencies().size();
             metrics.setInstability((double) outgoing / (incoming + outgoing));
             metrics.setDistance(Math.abs(metrics.getAbstractness() + metrics.getInstability() - 1));
-        }
-    }
-
-    public void printMetrics() {
-        for (ClassMetrics metrics : classMetricsMap.values()) {
-            System.out.println("\nClass: " + metrics.getClassName());
-            System.out.println("Total Lines (LOC): " + metrics.getTotalLines());
-            System.out.println("Executable Lines (eLOC): " + metrics.getExecutableLines());
-            System.out.println("Comment Lines: " + metrics.getCommentLines());
-            System.out.println("Logical Lines of Code (lLOC): " + metrics.getLogicalLines());
-            System.out.println("Abstractness: " + metrics.getAbstractness());
-            System.out.println("Instability: " + metrics.getInstability());
-            System.out.println("Distance: " + metrics.getDistance());
-            System.out.println("Outgoing Dependencies: " + metrics.getOutgoingDependencies());
-            System.out.println("Incoming Dependencies: " + metrics.getIncomingDependencies());
-            System.out.println("Highest Cyclomatic Complexity: " + metrics.getHighestCyclomaticComplexity());
-
-            for (MethodMetrics method : metrics.getMethods()) {
-                System.out.println("  Method: " + method.getMethodName() + " - Lines of code: " + method.getLinesOfCode() + " - Cyclomatic Complexity: " + method.getCyclomaticComplexity());
-                for (ParameterMetrics param : method.getParameters()) {
-                    System.out.println("    Parameter: " + param.getParamName() + " - Type: " + param.getParamType());
-                }
-            }
         }
     }
 }

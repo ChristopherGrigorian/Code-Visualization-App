@@ -115,10 +115,11 @@ public class CharlieMain extends JFrame {
             }
         }
         JPanel galaxy = new GalaxyPanel(functions);
-        JPanel test1 = new JPanel();
-        test1.setBackground(new java.awt.Color(255, 255, 255));
-        JPanel test2 = new JPanel();
-        test2.setBackground(new java.awt.Color(255, 0, 0));
+
+        JPanel rawMetrics = new RawMetricsPanel();
+        JPanel metricsChart = new MetricsChartPanel();
+
+        metricsChart.setBackground(new java.awt.Color(255, 0, 0));
         JPanel test3 = new JPanel();
         test3.setBackground(new java.awt.Color(0, 255, 0));
         JPanel test4 = new JPanel();
@@ -126,8 +127,8 @@ public class CharlieMain extends JFrame {
 //        Create tabs to switch between panels
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Galaxy", galaxy);
-        tabs.addTab("Test1", test1);
-        tabs.addTab("Test2", test2);
+        tabs.addTab("Raw Metrics", rawMetrics);
+        tabs.addTab("Abstractness vs. Instability", metricsChart);
         tabs.addTab("Test3", test3);
         tabs.addTab("Test4", test4);
         add(tabs, BorderLayout.CENTER);

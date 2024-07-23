@@ -1,6 +1,10 @@
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.ast.stmt.*;
 
+/**
+ * @author christophergrigorian
+ */
+
 public class CyclomaticComplexityVisitor extends VoidVisitorAdapter<Void> {
     private int complexity = 1;
 
