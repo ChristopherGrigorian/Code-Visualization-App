@@ -100,4 +100,8 @@ class Galaxy extends JPanel  {
         }
         return colors;
     }
+
+    public ArrayList<Function> getFunctions() {
+        return functions;
+    }
 }

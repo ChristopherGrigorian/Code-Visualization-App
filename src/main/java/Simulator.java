@@ -43,6 +43,9 @@ public class Simulator {
         }
 
         for (Function f : functions) {
+            if (f.isSelected()) {
+                continue;
+            }
             double[] totalForces = calculateTotalForces(f);
             applyForces(f, totalForces[0], totalForces[1]);
         }

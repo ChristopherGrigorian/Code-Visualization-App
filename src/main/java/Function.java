@@ -8,6 +8,8 @@ public class Function {
     private int x;
     private int y;
 
+    private boolean selected;
+
 
     private ArrayList<Function> calls = new ArrayList<>();
 
@@ -53,5 +55,17 @@ public class Function {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public boolean contains(int x, int y) {
+        return x >= this.x && x <= this.x + 20 && y >= this.y && y <= this.y + 20;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
+    public boolean isSelected() {
+        return selected;
     }
 }

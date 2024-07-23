@@ -7,6 +7,9 @@ public class GalaxyPanel extends JPanel {
 
     public GalaxyPanel(ArrayList<Function> functions) {
         Galaxy galaxy = new Galaxy(functions);
+        GalaxyMouseListener galaxyMouseListener = new GalaxyMouseListener(galaxy);
+        galaxy.addMouseListener(galaxyMouseListener);
+        galaxy.addMouseMotionListener(galaxyMouseListener);
         // Create sidebar with legend for class
         JPanel sidebar = new JPanel();
         JLabel title = new JLabel("Legend");
