@@ -1,8 +1,8 @@
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.awt.BorderLayout;
 import java.util.Map;
 
 public class CharlieMain extends JFrame {
@@ -120,8 +120,7 @@ public class CharlieMain extends JFrame {
         JPanel metricsChart = new MetricsChartPanel();
 
         metricsChart.setBackground(new java.awt.Color(255, 0, 0));
-        JPanel test3 = new JPanel();
-        test3.setBackground(new java.awt.Color(0, 255, 0));
+        JPanel cityPanel= CityController.createChartPanel();
         JPanel test4 = new JPanel();
         test4.setBackground(new java.awt.Color(0, 0, 255));
 //        Create tabs to switch between panels
@@ -129,7 +128,7 @@ public class CharlieMain extends JFrame {
         tabs.addTab("Galaxy", galaxy);
         tabs.addTab("Raw Metrics", rawMetrics);
         tabs.addTab("Abstractness vs. Instability", metricsChart);
-        tabs.addTab("Test3", test3);
+        tabs.addTab("City View", cityPanel);
         tabs.addTab("Test4", test4);
         add(tabs, BorderLayout.CENTER);
     }
