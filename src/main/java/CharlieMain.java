@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class Main extends JFrame {
+public class CharlieMain extends JFrame {
     /**
      * This Main class is designed to initialize and display various visualizations
      * of class metrics and relationships. It prompts the user to select a directory
@@ -30,7 +30,7 @@ public class Main extends JFrame {
 
             try {
                 ph.parseDirectory(selectedDirectory.toPath());
-                JFrame frame = new Main(ph);
+                JFrame frame = new CharlieMain(ph);
                 frame.setTitle("Galaxy Plot");
                 frame.setSize(1200, 800);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,7 +51,7 @@ public class Main extends JFrame {
 
     }
 
-    public Main(PowerHouse ph) {
+    public CharlieMain(PowerHouse ph) {
         Map<String, ClassMetrics> metrics = ph.getClassMetricsMap();
         ArrayList<Function> functions = new ArrayList<>();
         for (ClassMetrics metric : metrics.values()) {
