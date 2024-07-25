@@ -3,7 +3,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class CharlieMain extends JFrame {
+public class MainFrame extends JFrame {
     public static void main(String[] args) {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Load Source Folder");
@@ -24,7 +24,7 @@ public class CharlieMain extends JFrame {
     }
 
     private static void createAndShowGUI() {
-        JFrame frame = new CharlieMain();
+        JFrame frame = new MainFrame();
         frame.setTitle("Galaxy Plot");
         frame.setSize(1200, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -40,7 +40,7 @@ public class CharlieMain extends JFrame {
         }
     }
 
-    public CharlieMain() {
+    public MainFrame() {
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Galaxy", new GalaxyPanel());
         tabs.addTab("Raw Metrics", new RawMetricsPanel());
