@@ -23,7 +23,6 @@ public class Main extends JFrame {
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int userSelection = fileChooser.showOpenDialog(null);
-
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             PowerHouse ph = PowerHouse.getInstance();
             File selectedDirectory = fileChooser.getSelectedFile();
@@ -37,9 +36,7 @@ public class Main extends JFrame {
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setResizable(false);
                 frame.setVisible(true);
-                Simulator simulator = Simulator.getInstance();
                 while (true) {
-//            simulator.simulateTime();
                     frame.repaint();
                     try {
                         Thread.sleep(10);
@@ -76,29 +73,16 @@ public class Main extends JFrame {
                         break;
                     }
                 }
-                boolean found = false;
-                if (caller.getName().equals("updateGrid") && caller.getParentClass().equals("Genuis")) {
-                    System.out.println("Found it");
-                    System.out.println(caller.getName() + " " + caller.getParentClass());
-                    found = true;
-                }
                 for (MethodCallDetails call : method.getMethodCalls()) {
                     String calleeClassName = call.getParentClass();
                     String calleeFunctionName = call.getMethodName();
-                    if (found) {
-                        System.out.println(calleeFunctionName + " " + calleeClassName);
-                    }
                     Function callee = null;
                     for (Function f : functions) {
-                        if (found) {
-                            System.out.println("Checking " + f.getName() + " " + f.getParentClass());
-                        }
                         String upperFName = f.getName().toUpperCase();
                         String upperCName = calleeFunctionName.toUpperCase();
                         String upperFClass = f.getParentClass().toUpperCase();
                         String upperCClass = calleeClassName.toUpperCase();
                         if (upperFName.equals(upperCName) && upperFClass.equals(upperCClass)) {
-                            System.out.println("Found it");
                             callee = f;
                             break;
                         }

@@ -104,6 +104,18 @@ public class PowerHouse {
                         }
                     }
 
+                    for (ConstructorDeclaration constructor : classDeclaration.getConstructors()) {
+                        MethodMetrics methodMetrics = new MethodMetrics(constructor.getNameAsString(),
+                                constructor.getEnd().get().line - constructor.getBegin().get().line);
+
+                        // Collect method calls
+                        MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
+                        constructor.accept(methodCallVisitor, className);
+                        methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
+
+                        classMetrics.addMethod(methodMetrics);
+                    }
+
                     for (MethodDeclaration method : classDeclaration.getMethods()) {
                         MethodMetrics methodMetrics = new MethodMetrics(method.getNameAsString(),
                                 method.getEnd().get().line - method.getBegin().get().line);
@@ -125,6 +137,15 @@ public class PowerHouse {
                         MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
                         method.accept(methodCallVisitor, className);
                         methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
+
+                        // Add outgoing dependencies from method calls
+                        for (MethodCallDetails methodCall : methodCallVisitor.getMethodCalls()) {
+                            String parentClass = methodCall.getParentClass();
+                            if (parentClass != null && !parentClass.isEmpty() && classMetricsMap.containsKey(parentClass)) {
+                                classMetrics.addOutgoingDependency(parentClass);
+                            }
+                        }
+
 
                         classMetrics.addMethod(methodMetrics);
                     }

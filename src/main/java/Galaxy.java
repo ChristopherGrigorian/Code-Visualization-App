@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 class Galaxy extends JPanel  {
-//    DirectedSparseMultigraph<String, String> graph = new DirectedSparseMultigraph<>();
     private ArrayList<Function> functions;
     private Simulator simulator = Simulator.getInstance();
     private Map<String, Color> classColors;
@@ -22,18 +21,38 @@ class Galaxy extends JPanel  {
         for (Function f : functions) {
 //           Draw a circle for each function
             g.setColor(classColors.get(f.getParentClass()));
-            g.fillOval(f.getX(), f.getY(), 20, 20) ;
+            int size = f.getLength();
+            g.fillOval(f.getX(), f.getY(), size, size) ;
             g.drawString(f.getName(), f.getX(), f.getY());
+            if (size >= 40 && size < 60) {
+                g.setColor(Color.ORANGE);
+                // Draw warning icon
+                g.fillOval(f.getX() + size, f.getY(), 10, 10);
+                g.setColor(Color.BLACK);
+                g.drawLine(f.getX() + size + 5, f.getY() + 2, f.getX() + size + 5, f.getY() + 8);
+                g.drawLine(f.getX() + size + 5, f.getY() + 8, f.getX() + size + 2, f.getY() + 10);
+                g.drawLine(f.getX() + size + 5, f.getY() + 8, f.getX() + size + 8, f.getY() + 10);
+            }
+            if (size >= 60) {
+                g.setColor(Color.RED);
+                // Draw error icon
+                g.fillOval(f.getX() + size, f.getY(), 10, 10);
+                g.setColor(Color.BLACK);
+                g.drawLine(f.getX() + size + 2, f.getY() + 2, f.getX() + size + 8, f.getY() + 8);
+                g.drawLine(f.getX() + size + 8, f.getY() + 2, f.getX() + size + 2, f.getY() + 8);
+            }
         }
         for (Function f : functions) {
+            int fOffset = f.getLength()/2;
             for (Function call : f.getCalls()) {
+                int callOffset = call.getLength()/2;
                 g.setColor(Color.BLACK);
-                g.drawLine(f.getX()+10, f.getY()+10, call.getX()+10, call.getY()+10);
+                g.drawLine(f.getX()+fOffset, f.getY()+fOffset, call.getX()+callOffset, call.getY()+callOffset);
                 // Draw arrow head
-                int x1 = f.getX()+10;
-                int y1 = f.getY()+10;
-                int x2 = call.getX()+10;
-                int y2 = call.getY()+10;
+                int x1 = f.getX()+fOffset;
+                int y1 = f.getY()+fOffset;
+                int x2 = call.getX()+callOffset;
+                int y2 = call.getY()+callOffset;
                 double angle = Math.atan2(y2 - y1, x2 - x1);
                 int x3 = (int) (x2 - 10 * Math.cos(angle - Math.PI / 6));
                 int y3 = (int) (y2 - 10 * Math.sin(angle - Math.PI / 6));

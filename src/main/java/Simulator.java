@@ -13,12 +13,12 @@ public class Simulator {
     private static Simulator instance = null;
     private ArrayList<Function> functions;
 
-    private static final double LINK_FORCE = 0.5;
+    private static final double LINK_FORCE = 0.1;
     private static final double VERTEX_FORCE = 5000;
     private static final double WALL_FORCE = 1;
     private static final int WALL_RIGHT = 750;
     private static final int WALL_BOTTOM = 725;
-    private static final double EQUILIBRIUM_DISTANCE = 100;
+    private static final double EQUILIBRIUM_DISTANCE = 50;
     private static final int WALL_MARGIN = 50;
     private boolean updating = true;
 
