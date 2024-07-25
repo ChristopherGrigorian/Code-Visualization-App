@@ -126,6 +126,15 @@ public class PowerHouse {
                         method.accept(methodCallVisitor, className);
                         methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
 
+                        // Add outgoing dependencies from method calls
+                        for (MethodCallDetails methodCall : methodCallVisitor.getMethodCalls()) {
+                            String parentClass = methodCall.getParentClass();
+                            if (parentClass != null && !parentClass.isEmpty() && classMetricsMap.containsKey(parentClass)) {
+                                classMetrics.addOutgoingDependency(parentClass);
+                            }
+                        }
+
+
                         classMetrics.addMethod(methodMetrics);
                     }
 
@@ -222,6 +231,8 @@ public class PowerHouse {
 
     private void populateIncomingDependencies() {
         for (ClassMetrics metrics : classMetricsMap.values()) {
+            System.out.println(metrics.getClassName());
+            System.out.println(metrics.getOutgoingDependencies());
             for (String dependency : metrics.getOutgoingDependencies()) {
                 ClassMetrics dependentClassMetrics = classMetricsMap.get(dependency);
                 if (dependentClassMetrics != null) {
@@ -229,6 +240,7 @@ public class PowerHouse {
                 }
 
             }
+            System.out.println(metrics.getIncomingDependencies());
         }
     }
 
