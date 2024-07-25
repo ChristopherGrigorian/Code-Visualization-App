@@ -1,4 +1,5 @@
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
@@ -33,7 +34,15 @@ public class MethodCallVisitor extends VoidVisitorAdapter<String> {
         super.visit(creationExpr, currentClass);
         this.currentClass = currentClass;
         String className = creationExpr.getType().asString();
-        methodCalls.add(new MethodCallDetails("<init>", className));
+        methodCalls.add(new MethodCallDetails(className, className));
+    }
+
+    @Override
+    public void visit(ConstructorDeclaration constructorDeclaration, String currentClass) {
+        super.visit(constructorDeclaration, currentClass);
+        this.currentClass = currentClass;
+        String constructorName = constructorDeclaration.getNameAsString();
+        methodCalls.add(new MethodCallDetails(constructorName, currentClass));
     }
 
     public List<MethodCallDetails> getMethodCalls() {

@@ -104,6 +104,18 @@ public class PowerHouse {
                         }
                     }
 
+                    for (ConstructorDeclaration constructor : classDeclaration.getConstructors()) {
+                        MethodMetrics methodMetrics = new MethodMetrics(constructor.getNameAsString(),
+                                constructor.getEnd().get().line - constructor.getBegin().get().line);
+
+                        // Collect method calls
+                        MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
+                        constructor.accept(methodCallVisitor, className);
+                        methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
+
+                        classMetrics.addMethod(methodMetrics);
+                    }
+
                     for (MethodDeclaration method : classDeclaration.getMethods()) {
                         MethodMetrics methodMetrics = new MethodMetrics(method.getNameAsString(),
                                 method.getEnd().get().line - method.getBegin().get().line);
