@@ -231,8 +231,6 @@ public class PowerHouse {
 
     private void populateIncomingDependencies() {
         for (ClassMetrics metrics : classMetricsMap.values()) {
-            System.out.println(metrics.getClassName());
-            System.out.println(metrics.getOutgoingDependencies());
             for (String dependency : metrics.getOutgoingDependencies()) {
                 ClassMetrics dependentClassMetrics = classMetricsMap.get(dependency);
                 if (dependentClassMetrics != null) {
@@ -240,7 +238,6 @@ public class PowerHouse {
                 }
 
             }
-            System.out.println(metrics.getIncomingDependencies());
         }
     }
 
