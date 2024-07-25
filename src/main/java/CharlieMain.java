@@ -1,19 +1,19 @@
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class CharlieMain extends JFrame {
+public class Main extends JFrame {
     /**
-     * This class is intentionally made very bland and simple
-     * In the hopes that it will make it easier to merge later
-     * I didn't want to mess with the current Main function, as it looks like whoever
-     * wrote it wants some certain fucntionality, the goal with this is just to use the
-     * PowerHouse class to use my Galaxy class to create the graph with a specified directory
-     * The directory is going to be hardcoded as that should make it clear when trying to merge
-     * That also means this file wont work on anyone elses machine, but that's fine.
+     * This Main class is designed to initialize and display various visualizations
+     * of class metrics and relationships. It prompts the user to select a directory
+     * containing Java source files, parses the directory to extract class metrics, and
+     * then displays different visualizations including Galaxy, Raw Metrics, Abstractness vs. Instability,
+     * City View, and Class Analysis (with sub-tabs for Cohesion, Composition, and Responsibilities).
      *
      * @author Charlie Ray
      */
@@ -31,7 +31,7 @@ public class CharlieMain extends JFrame {
 
             try {
                 ph.parseDirectory(selectedDirectory.toPath());
-                JFrame frame = new CharlieMain(ph);
+                JFrame frame = new Main(ph);
                 frame.setTitle("Galaxy Plot");
                 frame.setSize(1200, 800);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,7 +54,7 @@ public class CharlieMain extends JFrame {
 
     }
 
-    public CharlieMain (PowerHouse ph) {
+    public Main(PowerHouse ph) {
         Map<String, ClassMetrics> metrics = ph.getClassMetricsMap();
         ArrayList<Function> functions = new ArrayList<>();
         for (ClassMetrics metric : metrics.values()) {
@@ -118,18 +118,38 @@ public class CharlieMain extends JFrame {
 
         JPanel rawMetrics = new RawMetricsPanel();
         JPanel metricsChart = new MetricsChartPanel();
-
         metricsChart.setBackground(new java.awt.Color(255, 0, 0));
         JPanel cityPanel= CityController.createChartPanel();
-        JPanel test4 = new JPanel();
-        test4.setBackground(new java.awt.Color(0, 0, 255));
+
+
+        // Create "Class Analysis" tab with sub-tabs for each visualization
+        JTabbedPane classAnalysisTabs = new JTabbedPane();
+
+        File directory = ph.getCurDirectory();
+        classAnalysisTabs.addTab("Class Cohesion", new ClassCohesionPanel(metrics, directory));
+        classAnalysisTabs.addTab("Class Composition", new ClassCompositionPanel(metrics, directory));
+        classAnalysisTabs.addTab("Class Responsibilities", new ClassResponsibilityPanel(metrics, directory));
+        JPanel classAnalysis = new JPanel(new BorderLayout());
+        classAnalysis.add(classAnalysisTabs, BorderLayout.CENTER);
+
+
 //        Create tabs to switch between panels
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Galaxy", galaxy);
         tabs.addTab("Raw Metrics", rawMetrics);
         tabs.addTab("Abstractness vs. Instability", metricsChart);
         tabs.addTab("City View", cityPanel);
-        tabs.addTab("Test4", test4);
+        tabs.addTab("Class Analysis", classAnalysis);
+
+        tabs.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int selectedIndex = tabs.getSelectedIndex();
+                String title = tabs.getTitleAt(selectedIndex);
+                setTitle(title);
+            }
+        });
+
         add(tabs, BorderLayout.CENTER);
     }
 }
