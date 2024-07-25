@@ -4,22 +4,19 @@ import java.awt.event.MouseMotionListener;
 
 public class GalaxyMouseListener implements MouseListener, MouseMotionListener {
 
-    private Galaxy galaxy;
+    private GalaxyPainter galaxyPainter;
 
-    public GalaxyMouseListener(Galaxy galaxy) {
-        this.galaxy = galaxy;
+    public GalaxyMouseListener(GalaxyPainter galaxyPainter) {
+        this.galaxyPainter = galaxyPainter;
     }
     @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
-
+    public void mouseClicked(MouseEvent e) {}
     @Override
     public void mousePressed(MouseEvent e) {
-        for (Function f : galaxy.getFunctions()) {
+        for (Function f : galaxyPainter.getFunctions()) {
             if (f.contains(e.getX(), e.getY())) {
                 f.setSelected(true);
-                galaxy.repaint();
+                galaxyPainter.repaint();
                 break;
             }
         }
@@ -27,36 +24,30 @@ public class GalaxyMouseListener implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        for (Function f : galaxy.getFunctions()) {
+        for (Function f : galaxyPainter.getFunctions()) {
             f.setSelected(false);
         }
-        galaxy.repaint();
+        galaxyPainter.repaint();
     }
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
+    public void mouseEntered(MouseEvent e) {}
 
     @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    public void mouseExited(MouseEvent e) {}
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        for (Function f : galaxy.getFunctions()) {
+        for (Function f : galaxyPainter.getFunctions()) {
             if (f.isSelected()) {
                 f.setX(e.getX());
                 f.setY(e.getY());
-                galaxy.repaint();
+                galaxyPainter.repaint();
                 break;
             }
         }
     }
 
     @Override
-    public void mouseMoved(MouseEvent e) {
-
-    }
+    public void mouseMoved(MouseEvent e) {}
 }

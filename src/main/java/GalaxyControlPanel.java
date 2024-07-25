@@ -6,17 +6,15 @@ public class GalaxyControlPanel extends JPanel {
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
         controlPanel.add(new JLabel("Control Panel"));
-        JButton pauseButton = new JButton("Pause Simulation");
-        pauseButton.setActionCommand("Pause Simulation");
-        controlPanel.add(pauseButton);
-        JButton resumeButton = new JButton("Resume Simulation");
-        resumeButton.setActionCommand("Resume Simulation");
-        controlPanel.add(resumeButton);
-        // add event listener
-        GalaxyListener listener = new GalaxyListener();
-        pauseButton.addActionListener(listener);
-        resumeButton.addActionListener(listener);
+        addButton(controlPanel, "Pause Simulation");
+        addButton(controlPanel, "Resume Simulation");
         this.add(controlPanel);
+    }
 
+    private void addButton(JPanel panel, String label) {
+        JButton button = new JButton(label);
+        button.setActionCommand(label);
+        button.addActionListener(new GalaxyListener());
+        panel.add(button);
     }
 }
