@@ -24,7 +24,6 @@ public class RawMetricsPanel extends JPanel {
         northPanel.add(new JLabel("Individual Class Data"), BorderLayout.WEST);
         northPanel.add(new JLabel("Average Data"), BorderLayout.EAST);
 
-        // Create tables and add to panel
         westTable = new JTable();
         westTable.setModel(new DefaultTableModel(new Object[]{"Class", "LOC", "eLOC", "lLOC", "A", "I", "D", "Outgoing", "Incoming", "CC"}, 0));
         setColumnWidths(westTable, 275, 35, 35, 35, 20, 20, 20, 50, 50, 25);
@@ -44,10 +43,8 @@ public class RawMetricsPanel extends JPanel {
         add(eastScrollPane, BorderLayout.EAST);
         add(northPanel, BorderLayout.NORTH);
 
-        // Initialize DecimalFormat for 3 decimal places
         decimalFormat = new DecimalFormat("#.###");
 
-        // Populate the west table with metrics and the east table with averages
         populateWestTable();
         populateEastTable();
     }
@@ -109,7 +106,6 @@ public class RawMetricsPanel extends JPanel {
                 }
             }
 
-            // Add an empty row as a gap between classes
             model.addRow(new Object[]{"", "", "", "", "", "", "", "", "", ""});
         }
     }
