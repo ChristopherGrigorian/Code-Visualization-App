@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 
+/**
+ * @author CharlieRay668 (Charlie Ray)
+ */
 public class Function {
     private int length;
     private String name;

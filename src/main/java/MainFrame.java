@@ -3,7 +3,12 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
+/**
+ * @author CharlieRay668 (Charlie Ray)
+ * @author
+ * @author
+ * @author
+ */
 public class MainFrame extends JFrame {
     public static void main(String[] args) {
         JFileChooser fileChooser = new JFileChooser();
