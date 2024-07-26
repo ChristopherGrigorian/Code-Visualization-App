@@ -67,8 +67,7 @@ public class PowerHouse {
     public void parseFile(Path filePath) {
         try {
             String content = Files.readString(filePath);
-            JavaParser parser = new JavaParser();
-            Optional<CompilationUnit> result = parser.parse(content).getResult();
+            Optional<CompilationUnit> result = parseContent(content);
 
             if (result.isPresent()) {
                 CompilationUnit compilationUnit = result.get();
@@ -81,78 +80,11 @@ public class PowerHouse {
                 int logicalLines = getLogicalLineCount(content, compilationUnit);
                 int abstractness = getAbstractness(compilationUnit);
 
-                List<ClassOrInterfaceDeclaration> classDeclarations = compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
+                List<ClassOrInterfaceDeclaration> classDeclarations = getClassDeclarations(compilationUnit);
                 for (ClassOrInterfaceDeclaration classDeclaration : classDeclarations) {
-                    String className = classDeclaration.getNameAsString();
-                    ClassMetrics classMetrics = new ClassMetrics(className);
-
-                    classMetrics.setTotalLines(totalLines);
-                    classMetrics.setCommentLines(commentLines);
-                    classMetrics.setBlankLines(blankLines);
-                    classMetrics.setStandaloneBracketLines(standaloneBracketLines);
-                    classMetrics.setExecutableLines(executableLines);
-                    classMetrics.setLogicalLines(logicalLines);
-                    classMetrics.setAbstractness(abstractness);
-
-                    for (FieldDeclaration field : classDeclaration.getFields()) {
-                        for (VariableDeclarator variable : field.getVariables()) {
-                            Type fieldType = variable.getType();
-                            if (fieldType.isClassOrInterfaceType()) {
-                                String referencedClass = fieldType.asClassOrInterfaceType().getNameAsString();
-                                classMetrics.addOutgoingDependency(referencedClass);
-                            }
-                        }
-                    }
-
-                    for (ConstructorDeclaration constructor : classDeclaration.getConstructors()) {
-                        MethodMetrics methodMetrics = new MethodMetrics(constructor.getNameAsString(),
-                                constructor.getEnd().get().line - constructor.getBegin().get().line);
-
-                        // Collect method calls
-                        MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
-                        constructor.accept(methodCallVisitor, className);
-                        methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
-
-                        classMetrics.addMethod(methodMetrics);
-                    }
-
-                    for (MethodDeclaration method : classDeclaration.getMethods()) {
-                        MethodMetrics methodMetrics = new MethodMetrics(method.getNameAsString(),
-                                method.getEnd().get().line - method.getBegin().get().line);
-
-                        int cyclomaticComplexity = calculateCyclomaticComplexity(method);
-                        methodMetrics.setCyclomaticComplexity(cyclomaticComplexity);
-
-                        for (Parameter parameter : method.getParameters()) {
-                            String paramName = parameter.getNameAsString();
-                            Type paramType = parameter.getType();
-                            methodMetrics.addParameter(new ParameterMetrics(paramName, paramType.toString()));
-                            if (paramType.isClassOrInterfaceType()) {
-                                String referencedClass = paramType.asClassOrInterfaceType().getNameAsString();
-                                classMetrics.addOutgoingDependency(referencedClass);
-                            }
-                        }
-
-                        // Collect method calls
-                        MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
-                        method.accept(methodCallVisitor, className);
-                        methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
-
-                        // Add outgoing dependencies from method calls
-                        for (MethodCallDetails methodCall : methodCallVisitor.getMethodCalls()) {
-                            String parentClass = methodCall.getParentClass();
-                            if (parentClass != null && !parentClass.isEmpty() && classMetricsMap.containsKey(parentClass)) {
-                                classMetrics.addOutgoingDependency(parentClass);
-                            }
-                        }
-
-
-                        classMetrics.addMethod(methodMetrics);
-                    }
-
-                    trackExtendedClassAndInterfaces(classDeclaration, classMetrics);
-                    classMetricsMap.put(className, classMetrics);
-
+                    ClassMetrics classMetrics = collectClassMetrics(classDeclaration, totalLines, commentLines, blankLines,
+                            standaloneBracketLines, executableLines, logicalLines, abstractness);
+                    classMetricsMap.put(classDeclaration.getNameAsString(), classMetrics);
                 }
             } else {
                 System.out.println("Error parsing file: " + filePath);
@@ -163,6 +95,94 @@ public class PowerHouse {
 
         } catch (IOException e) {
             throw new RuntimeException("IOException occurred while parsing file: " + filePath, e);
+        }
+    }
+
+    private Optional<CompilationUnit> parseContent(String content) {
+        JavaParser parser = new JavaParser();
+        return parser.parse(content).getResult();
+    }
+
+    private List<ClassOrInterfaceDeclaration> getClassDeclarations(CompilationUnit compilationUnit) {
+        return compilationUnit.findAll(ClassOrInterfaceDeclaration.class);
+    }
+
+    private ClassMetrics collectClassMetrics(ClassOrInterfaceDeclaration classDeclaration, int totalLines, int commentLines,
+                                             int blankLines, int standaloneBracketLines, int executableLines,
+                                             int logicalLines, int abstractness) {
+
+        ClassMetrics classMetrics = new ClassMetrics(classDeclaration.getNameAsString());
+        classMetrics.setTotalLines(totalLines);
+        classMetrics.setCommentLines(commentLines);
+        classMetrics.setBlankLines(blankLines);
+        classMetrics.setStandaloneBracketLines(standaloneBracketLines);
+        classMetrics.setExecutableLines(executableLines);
+        classMetrics.setLogicalLines(logicalLines);
+        classMetrics.setAbstractness(abstractness);
+
+        collectFieldMetrics(classDeclaration, classMetrics);
+        collectConstructorMetrics(classDeclaration, classMetrics);
+        collectMethodMetrics(classDeclaration, classMetrics);
+        trackExtendedClassAndInterfaces(classDeclaration, classMetrics);
+
+        return classMetrics;
+    }
+
+    private void collectFieldMetrics(ClassOrInterfaceDeclaration classDeclaration, ClassMetrics classMetrics) {
+        for (FieldDeclaration field : classDeclaration.getFields()) {
+            for (VariableDeclarator variable : field.getVariables()) {
+                Type fieldType = variable.getType();
+                if (fieldType.isClassOrInterfaceType()) {
+                    String referencedClass = fieldType.asClassOrInterfaceType().getNameAsString();
+                    classMetrics.addOutgoingDependency(referencedClass);
+                }
+            }
+        }
+    }
+
+    private void collectConstructorMetrics(ClassOrInterfaceDeclaration classDeclaration, ClassMetrics classMetrics) {
+        for (ConstructorDeclaration constructor : classDeclaration.getConstructors()) {
+            MethodMetrics methodMetrics = new MethodMetrics(constructor.getNameAsString(),
+                    constructor.getEnd().get().line - constructor.getBegin().get().line);
+
+            MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
+            constructor.accept(methodCallVisitor, classDeclaration.getNameAsString());
+            methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
+
+            classMetrics.addMethod(methodMetrics);
+        }
+    }
+
+    private void collectMethodMetrics(ClassOrInterfaceDeclaration classDeclaration, ClassMetrics classMetrics) {
+        for (MethodDeclaration method : classDeclaration.getMethods()) {
+            MethodMetrics methodMetrics = new MethodMetrics(method.getNameAsString(),
+                    method.getEnd().get().line - method.getBegin().get().line);
+
+            int cyclomaticComplexity = calculateCyclomaticComplexity(method);
+            methodMetrics.setCyclomaticComplexity(cyclomaticComplexity);
+
+            for (Parameter parameter : method.getParameters()) {
+                String paramName = parameter.getNameAsString();
+                Type paramType = parameter.getType();
+                methodMetrics.addParameter(new ParameterMetrics(paramName, paramType.toString()));
+                if (paramType.isClassOrInterfaceType()) {
+                    String referencedClass = paramType.asClassOrInterfaceType().getNameAsString();
+                    classMetrics.addOutgoingDependency(referencedClass);
+                }
+            }
+
+            MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
+            method.accept(methodCallVisitor, classDeclaration.getNameAsString());
+            methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
+
+            for (MethodCallDetails methodCall : methodCallVisitor.getMethodCalls()) {
+                String parentClass = methodCall.getParentClass();
+                if (parentClass != null && !parentClass.isEmpty() && classMetricsMap.containsKey(parentClass)) {
+                    classMetrics.addOutgoingDependency(parentClass);
+                }
+            }
+
+            classMetrics.addMethod(methodMetrics);
         }
     }
 
