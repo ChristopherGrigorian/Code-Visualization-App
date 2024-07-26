@@ -1,9 +1,3 @@
-import com.github.javaparser.JavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,6 +5,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+
+/**
+ * @author Eric Canihuante
+ */
 
 public class ClassAnalyzer {
 
@@ -20,30 +24,26 @@ public class ClassAnalyzer {
         CompilationUnit cu = parser.parse(in).getResult().orElseThrow(() -> new IOException("Parsing error"));
 
         Map<String, Set<String>> classCompositions = new HashMap<>();
-        cu.findAll(ClassOrInterfaceDeclaration.class).forEach(classDeclaration -> {
-            String className = classDeclaration.getNameAsString();
-            Set<String> fields = new HashSet<>();
-            for (FieldDeclaration field : classDeclaration.getFields()) {
-                fields.add(field.getElementType().asString());
-            }
-            classCompositions.put(className, fields);
-        });
+        new CompositionVisitor(classCompositions).visit(cu, null);
 
         return classCompositions;
     }
 
-    public static int getResponsibilities(File file) throws IOException {
-        FileInputStream in = new FileInputStream(file);
-        JavaParser parser = new JavaParser();
-        CompilationUnit cu = parser.parse(in).getResult().orElseThrow(() -> new IOException("Parsing error"));
+    private static class CompositionVisitor extends VoidVisitorAdapter<Void> {
+        private final Map<String, Set<String>> classCompositions;
 
-        int responsibilities = 0;
-        for (ClassOrInterfaceDeclaration classDeclaration : cu.findAll(ClassOrInterfaceDeclaration.class)) {
-            for (MethodDeclaration method : classDeclaration.getMethods()) {
-                responsibilities++;
-            }
+        CompositionVisitor(Map<String, Set<String>> classCompositions) {
+            this.classCompositions = classCompositions;
         }
 
-        return responsibilities;
+        @Override
+        public void visit(FieldDeclaration n, Void arg) {
+            String className = n.getParentNode().get().findFirst(ClassOrInterfaceDeclaration.class).get().getNameAsString();
+            String fieldType = n.getElementType().asString();
+            if (!className.equals(fieldType)) { // Prevent self-loops
+                classCompositions.computeIfAbsent(className, k -> new HashSet<>()).add(fieldType);
+            }
+            super.visit(n, arg);
+        }
     }
 }

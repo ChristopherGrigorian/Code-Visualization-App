@@ -6,6 +6,10 @@ import java.util.Set;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
+/**
+ * @author Eric Canihuante
+ */
+
 public class ClassCompositionPanel extends GraphPanel {
 
     public ClassCompositionPanel(Map<String, ClassMetrics> metrics, File directory) {
@@ -22,13 +26,22 @@ public class ClassCompositionPanel extends GraphPanel {
             if (file != null) {
                 try {
                     Map<String, Set<String>> classCompositions = ClassAnalyzer.analyzeClassComposition(file);
-                    graph.addVertex(className);
+                    if (!graph.containsVertex(className)) {
+                        graph.addVertex(className);
+                    }
                     for (Map.Entry<String, Set<String>> entry : classCompositions.entrySet()) {
                         String clazz = entry.getKey();
+                        if (!graph.containsVertex(clazz)) {
+                            graph.addVertex(clazz);
+                        }
                         for (String composedClass : entry.getValue()) {
                             if (!clazz.equals(composedClass)) {
-                                graph.addVertex(composedClass);
-                                graph.addEdge(clazz, composedClass);
+                                if (!graph.containsVertex(composedClass)) {
+                                    graph.addVertex(composedClass);
+                                }
+                                if (!graph.containsEdge(clazz, composedClass)) {
+                                    graph.addEdge(clazz, composedClass);
+                                }
                             }
                         }
                     }
@@ -37,5 +50,22 @@ public class ClassCompositionPanel extends GraphPanel {
                 }
             }
         }
+    }
+
+    @Override
+    protected File findFileInDirectory(File directory, String fileName) {
+        if (directory.isDirectory()) {
+            for (File file : directory.listFiles()) {
+                if (file.isDirectory()) {
+                    File found = findFileInDirectory(file, fileName);
+                    if (found != null) {
+                        return found;
+                    }
+                } else if (file.getName().equals(fileName)) {
+                    return file;
+                }
+            }
+        }
+        return null;
     }
 }

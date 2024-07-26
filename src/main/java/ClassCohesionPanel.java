@@ -15,6 +15,10 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
+/**
+ * @author Eric Canihuante
+ */
+
 public class ClassCohesionPanel extends GraphPanel {
 
     public ClassCohesionPanel(Map<String, ClassMetrics> metrics, File directory) {
