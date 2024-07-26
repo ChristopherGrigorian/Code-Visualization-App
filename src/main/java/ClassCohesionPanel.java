@@ -14,20 +14,18 @@ import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.ext.JGraphXAdapter;
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 
-/**
- * @author Eric Canihuante
- */
+public class ClassCohesionPanel extends GraphPanel {
 
-public class ClassCohesionPanel extends JPanel {
     public ClassCohesionPanel(Map<String, ClassMetrics> metrics, File directory) {
-        setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        super();
+        createGraph(metrics, directory);
+        setupGraphComponent();
+    }
 
-        SimpleGraph<String, DefaultEdge> graph = new SimpleGraph<>(DefaultEdge.class);
+    @Override
+    protected void createGraph(Map<String, ClassMetrics> metrics, File directory) {
+        graph = new SimpleGraph<>(DefaultEdge.class);
 
         for (String className : metrics.keySet()) {
             File file = findFileInDirectory(directory, className + ".java");
@@ -50,36 +48,6 @@ public class ClassCohesionPanel extends JPanel {
                 }
             }
         }
-
-        JGraphXAdapter<String, DefaultEdge> graphAdapter = new JGraphXAdapter<>(graph);
-        mxGraphComponent graphComponent = new mxGraphComponent(graphAdapter);
-        mxHierarchicalLayout layout = new mxHierarchicalLayout(graphAdapter);
-        layout.setIntraCellSpacing(50.0);
-        layout.execute(graphAdapter.getDefaultParent());
-        add(graphComponent, BorderLayout.CENTER);
-
-        // Hiding edge labels
-        graphAdapter.getEdgeToCellMap().values().forEach(edge -> {
-            if (edge instanceof com.mxgraph.model.mxCell) {
-                ((com.mxgraph.model.mxCell) edge).setValue("");
-            }
-        });
-    }
-
-    private File findFileInDirectory(File directory, String fileName) {
-        if (directory.isDirectory()) {
-            for (File file : directory.listFiles()) {
-                if (file.isDirectory()) {
-                    File found = findFileInDirectory(file, fileName);
-                    if (found != null) {
-                        return found;
-                    }
-                } else if (file.getName().equals(fileName)) {
-                    return file;
-                }
-            }
-        }
-        return null;
     }
 
     private Map<String, Set<String>> analyzeClassCohesion(File file) throws IOException {

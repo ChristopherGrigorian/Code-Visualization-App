@@ -52,8 +52,7 @@ public class MainFrame extends JFrame {
         JTabbedPane classAnalysisTabs = new JTabbedPane();
         classAnalysisTabs.addTab("Class Cohesion", new ClassCohesionPanel(metrics, directory));
         classAnalysisTabs.addTab("Class Composition", new ClassCompositionPanel(metrics, directory));
-        classAnalysisTabs.addTab("Class Responsibilities", new ClassResponsibilityPanel(metrics, directory));
-
+        classAnalysisTabs.addTab("Class Responsibilities", new ClassResponsibilityPanel(metrics));
         JPanel classAnalysis = new JPanel(new BorderLayout());
         classAnalysis.add(classAnalysisTabs, BorderLayout.CENTER);
         tabs.addTab("Class Analysis", classAnalysis);
