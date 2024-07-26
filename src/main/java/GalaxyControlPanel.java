@@ -1,5 +1,7 @@
 import javax.swing.*;
-
+/**
+ * @author CharlieRay668 (Charlie Ray)
+ */
 public class GalaxyControlPanel extends JPanel {
 
     public GalaxyControlPanel() {

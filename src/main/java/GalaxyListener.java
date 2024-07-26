@@ -1,6 +1,8 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+/**
+ * @author CharlieRay668 (Charlie Ray)
+ */
 public class GalaxyListener implements ActionListener {
 
     public GalaxyListener() {}

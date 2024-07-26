@@ -3,6 +3,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * @author CharlieRay668 (Charlie Ray)
+ */
 public class GalaxyPanel extends JPanel {
 
     public GalaxyPanel() {

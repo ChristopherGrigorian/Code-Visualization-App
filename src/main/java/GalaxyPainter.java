@@ -3,7 +3,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * @author CharlieRay668 (Charlie Ray)
+ */
 class GalaxyPainter extends JPanel {
     private ArrayList<Function> functions;
     private Simulator simulator = Simulator.getInstance();

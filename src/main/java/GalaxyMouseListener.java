@@ -2,6 +2,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+/**
+ * @author CharlieRay668 (Charlie Ray)
+ */
 public class GalaxyMouseListener implements MouseListener, MouseMotionListener {
 
     private GalaxyPainter galaxyPainter;
