@@ -1,3 +1,9 @@
+/**
+ * Holds immutable data about method calls within methods.
+ *
+ * @author Charlie Ray
+ */
+
 public class MethodCallDetails {
     private final String methodName;
     private final String parentClass;
