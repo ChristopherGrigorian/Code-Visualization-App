@@ -76,7 +76,7 @@ public class PowerHouse {
                 List<ClassOrInterfaceDeclaration> classDeclarations = getClassDeclarations(compilationUnit);
                 for (ClassOrInterfaceDeclaration classDeclaration : classDeclarations) {
                     ClassMetrics classMetrics = collectClassMetrics(classDeclaration, totalLines, commentLines, blankLines,
-                            standaloneBracketLines, executableLines, logicalLines, abstractness);
+                            executableLines, logicalLines, abstractness);
                     classMetricsMap.put(classDeclaration.getNameAsString(), classMetrics);
                 }
             } else {
@@ -101,14 +101,13 @@ public class PowerHouse {
     }
 
     private ClassMetrics collectClassMetrics(ClassOrInterfaceDeclaration classDeclaration, int totalLines, int commentLines,
-                                             int blankLines, int standaloneBracketLines, int executableLines,
+                                             int blankLines, int executableLines,
                                              int logicalLines, int abstractness) {
 
         ClassMetrics classMetrics = new ClassMetrics(classDeclaration.getNameAsString());
         classMetrics.setTotalLines(totalLines);
         classMetrics.setCommentLines(commentLines);
         classMetrics.setBlankLines(blankLines);
-        classMetrics.setStandaloneBracketLines(standaloneBracketLines);
         classMetrics.setExecutableLines(executableLines);
         classMetrics.setLogicalLines(logicalLines);
         classMetrics.setAbstractness(abstractness);

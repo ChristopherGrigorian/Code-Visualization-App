@@ -4,16 +4,17 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Holds immutable data about each class within source code.
+ *
  * @author christophergrigorian
  */
 
 public class ClassMetrics {
 
-    private String className;
+    private final String className;
     private int totalLines;
     private int commentLines;
     private int blankLines;
-    private int standaloneBracketLines;
     private int executableLines;
     private int logicalLines;
     private int abstractness;
@@ -21,9 +22,9 @@ public class ClassMetrics {
     private double distance;
     private int highestCyclomaticComplexity;
 
-    private Set<String> outgoingDependencies;
-    private Set<String> incomingDependencies;
-    private List<MethodMetrics> methods;
+    private final Set<String> outgoingDependencies;
+    private final Set<String> incomingDependencies;
+    private final List<MethodMetrics> methods;
 
     public ClassMetrics(String className) {
         this.className = className;
@@ -98,14 +99,6 @@ public class ClassMetrics {
 
     public void setAbstractness(int abstractness) {
         this.abstractness = abstractness;
-    }
-
-    public int getStandaloneBracketLines() {
-        return standaloneBracketLines;
-    }
-
-    public void setStandaloneBracketLines(int standaloneBracketLines) {
-        this.standaloneBracketLines = standaloneBracketLines;
     }
 
     public Set<String> getOutgoingDependencies() {
