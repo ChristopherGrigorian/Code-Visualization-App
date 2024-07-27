@@ -7,7 +7,6 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.*;
 
@@ -15,12 +14,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 /**
  * @author christophergrigorian
  * @author Charlie Ray (Imbedded Method Calls -> MethodCallVisitor, MethodCallDetails
+ * @author Eric Canihuante (Cohesion, Composition, and Responsibility Parsing Data)
  */
 
 public class PowerHouse {
@@ -281,4 +282,56 @@ public class PowerHouse {
             metrics.setDistance(Math.abs(metrics.getAbstractness() + metrics.getInstability() - 1));
         }
     }
+
+    public Map<String, Map<String, Set<String>>> getClassCohesionData() {
+        Map<String, Map<String, Set<String>>> cohesionData = new HashMap<>();
+        for (ClassMetrics classMetrics : classMetricsMap.values()) {
+            Map<String, Set<String>> methodDependencies = new HashMap<>();
+            for (MethodMetrics methodMetrics : classMetrics.getMethods()) {
+                Set<String> filteredDependencies = methodMetrics.getMethodCalls().stream()
+                        .filter(call -> !isLibraryMethod(call.getParentClass()))
+                        .map(MethodCallDetails::getMethodName)
+                        .collect(Collectors.toSet());
+                methodDependencies.put(methodMetrics.getMethodName(), filteredDependencies);
+            }
+            cohesionData.put(classMetrics.getClassName(), methodDependencies);
+        }
+        return cohesionData;
+    }
+
+    public Map<String, Set<String>> getClassCompositionData() {
+        Map<String, Set<String>> compositionData = new HashMap<>();
+        for (ClassMetrics classMetrics : classMetricsMap.values()) {
+            Set<String> filteredDependencies = classMetrics.getOutgoingDependencies().stream()
+                    .filter(dependency -> !isLibraryClass(dependency))
+                    .collect(Collectors.toSet());
+            compositionData.put(classMetrics.getClassName(), filteredDependencies);
+        }
+        return compositionData;
+    }
+
+    private boolean isLibraryMethod(String className) {
+        // Add logic to check if the class is from a library
+        return className.startsWith("java.") || className.startsWith("javax.") || className.startsWith("org.");
+    }
+
+    private boolean isLibraryClass(String className) {
+        // Add logic to check if the class is from a library
+        return className.startsWith("java.") || className.startsWith("javax.") || className.startsWith("org.");
+    }
+
+    public Map<String, Integer> getClassResponsibilityData() {
+        Map<String, Integer> responsibilityData = new HashMap<>();
+
+        for (Map.Entry<String, ClassMetrics> entry : classMetricsMap.entrySet()) {
+            String className = entry.getKey();
+            ClassMetrics classMetrics = entry.getValue();
+            int responsibilities = classMetrics.getMethods().size();
+
+            responsibilityData.put(className, responsibilities);
+        }
+
+        return responsibilityData;
+    }
+
 }

@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.util.Map;
 /**
  * @author CharlieRay668 (Charlie Ray)
- * @author
- * @author
- * @author
+ * @author Eric Canihuante
+ * @author christophergrigorian
+ * @author Harold Ellis
  */
 public class MainFrame extends JFrame {
     public static void main(String[] args) {
@@ -55,9 +55,9 @@ public class MainFrame extends JFrame {
 
         // Create "Class Analysis" tab with sub-tabs for each visualization
         JTabbedPane classAnalysisTabs = new JTabbedPane();
-        classAnalysisTabs.addTab("Class Cohesion", new ClassCohesionPanel(metrics, directory));
-        classAnalysisTabs.addTab("Class Composition", new ClassCompositionPanel(metrics, directory));
-        classAnalysisTabs.addTab("Class Responsibilities", new ClassResponsibilityPanel(metrics));
+        classAnalysisTabs.addTab("Class Cohesion", new ClassAnalysisCohesionPanel());
+        classAnalysisTabs.addTab("Class Composition", new ClassAnalysisCompositionPanel());
+        classAnalysisTabs.addTab("Class Responsibilities", new ClassAnalysisResponsibilityPanel());
         JPanel classAnalysis = new JPanel(new BorderLayout());
         classAnalysis.add(classAnalysisTabs, BorderLayout.CENTER);
         tabs.addTab("Class Analysis", classAnalysis);
