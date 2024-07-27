@@ -6,7 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+
 /**
  * @author CharlieRay668 (Charlie Ray)
  * @author Eric Canihuante
@@ -25,16 +25,16 @@ public class MainFrame extends JFrame {
             PowerHouse ph = PowerHouse.getInstance();
             try {
                 ph.parseDirectory(selectedDirectory.toPath());
-                createAndShowGUI(ph.getClassMetricsMap(), selectedDirectory);
+                createAndShowGUI();
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
 
-    private static void createAndShowGUI(Map<String, ClassMetrics> metrics, File directory) {
+    private static void createAndShowGUI() {
         Logger logger = LoggerFactory.getLogger(Main.class);
-        JFrame frame = new MainFrame(metrics, directory);
+        JFrame frame = new MainFrame();
         frame.setTitle("Galaxy Plot");
         frame.setSize(1200, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -50,7 +50,7 @@ public class MainFrame extends JFrame {
         }
     }
 
-    public MainFrame(Map<String, ClassMetrics> metrics, File directory) {
+    public MainFrame() {
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Galaxy", new GalaxyPanel());
         tabs.addTab("Raw Metrics", new RawMetricsPanel());
