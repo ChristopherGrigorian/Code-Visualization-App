@@ -6,6 +6,9 @@ import java.text.DecimalFormat;
 import java.util.Map;
 
 /**
+ * JPanel that displays the raw metrics, and averaged data in two separate JTables that share
+ * the screen.
+ *
  * @author christophergrigorian
  */
 

@@ -1,11 +1,19 @@
-/**
- * Carries immutable data about method calls within methods
- *
- * @author Charlie Ray
- * @author Christopher (Converted to record class because IDE suggested it)
- */
+public class MethodCallDetails {
+    private final String methodName;
+    private final String parentClass;
 
-public record MethodCallDetails(String methodName, String parentClass) {
+    public MethodCallDetails(String methodName, String parentClass) {
+        this.methodName = methodName;
+        this.parentClass = parentClass;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public String getParentClass() {
+        return parentClass;
+    }
 
     @Override
     public String toString() {

@@ -1,10 +1,12 @@
 /**
+ * Hold immutable data about parameters for method calls.
+ *
  * @author christophergrigorian
  */
 
 public class ParameterMetrics {
-    private String paramName;
-    private String paramType;
+    private final String paramName;
+    private final String paramType;
 
     public ParameterMetrics(String paramName, String paramType) {
         this.paramName = paramName;
@@ -15,15 +17,7 @@ public class ParameterMetrics {
         return paramName;
     }
 
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
-    }
-
     public String getParamType() {
         return paramType;
-    }
-
-    public void setParamType(String paramType) {
-        this.paramType = paramType;
     }
 }
