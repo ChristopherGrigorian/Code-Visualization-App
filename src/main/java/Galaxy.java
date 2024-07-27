@@ -39,7 +39,7 @@ public class Galaxy {
                 String callerFunctionName = method.getMethodName();
                 Function caller = findFunction(callerFunctionName, callerClassName);
                 for (MethodCallDetails call : method.getMethodCalls()) {
-                    Function callee = findFunction(call.getMethodName(), call.getParentClass());
+                    Function callee = findFunction(call.methodName(), call.parentClass());
                     if (caller != null && callee != null) {
                         caller.addCall(callee);
                         callee.addCalledBy(caller);

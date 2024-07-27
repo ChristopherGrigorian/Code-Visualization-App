@@ -7,7 +7,6 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
-import java.io.File;
 import java.util.*;
 
 import java.io.IOException;
@@ -173,7 +172,7 @@ public class PowerHouse {
                 methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
 
                 for (MethodCallDetails methodCall : methodCallVisitor.getMethodCalls()) {
-                    String parentClass = methodCall.getParentClass();
+                    String parentClass = methodCall.parentClass();
                     if (parentClass != null && !parentClass.isEmpty() && classMetricsMap.containsKey(parentClass)) {
                         classMetrics.addOutgoingDependency(parentClass);
                     }
@@ -287,8 +286,8 @@ public class PowerHouse {
             Map<String, Set<String>> methodDependencies = new HashMap<>();
             for (MethodMetrics methodMetrics : classMetrics.getMethods()) {
                 Set<String> filteredDependencies = methodMetrics.getMethodCalls().stream()
-                        .filter(call -> !isLibraryMethod(call.getParentClass()))
-                        .map(MethodCallDetails::getMethodName)
+                        .filter(call -> !isLibraryMethod(call.parentClass()))
+                        .map(MethodCallDetails::methodName)
                         .collect(Collectors.toSet());
                 methodDependencies.put(methodMetrics.getMethodName(), filteredDependencies);
             }
