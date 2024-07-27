@@ -1,3 +1,7 @@
+import com.sun.tools.javac.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -11,6 +15,7 @@ import java.io.IOException;
  */
 public class MainFrame extends JFrame {
     public static void main(String[] args) {
+        Logger logger = LoggerFactory.getLogger(Main.class);
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Load Source Folder");
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -24,6 +29,7 @@ public class MainFrame extends JFrame {
                 createAndShowGUI();
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                logger.error("Unable to parse chosen directory", e);
             }
         }
     }
