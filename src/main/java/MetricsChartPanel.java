@@ -13,6 +13,8 @@ import java.awt.geom.Ellipse2D;
 import java.util.Map;
 
 /**
+ * Responsible for creating Abstract vs. Instability chart.
+ *
  * @author christophergrigorian
  */
 
