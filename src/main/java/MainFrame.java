@@ -1,7 +1,3 @@
-import com.sun.tools.javac.Main;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -33,21 +29,16 @@ public class MainFrame extends JFrame {
     }
 
     private static void createAndShowGUI() {
-        Logger logger = LoggerFactory.getLogger(Main.class);
         JFrame frame = new MainFrame();
         frame.setTitle("Galaxy Plot");
         frame.setSize(1200, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
         frame.setVisible(true);
-        while (true) {
-            frame.repaint();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                logger.error("InterruptedException occurred in createAndShowGUI", e);
-            }
-        }
+        frame.setVisible(true);
+
+        Timer timer = new Timer(10, e -> frame.repaint());
+        timer.start();
     }
 
     public MainFrame() {
