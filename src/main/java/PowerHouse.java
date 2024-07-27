@@ -7,7 +7,6 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
-import java.io.File;
 import java.util.*;
 
 import java.io.IOException;
@@ -309,12 +308,10 @@ public class PowerHouse {
     }
 
     private boolean isLibraryMethod(String className) {
-        // Add logic to check if the class is from a library
         return className.startsWith("java.") || className.startsWith("javax.") || className.startsWith("org.");
     }
 
     private boolean isLibraryClass(String className) {
-        // Add logic to check if the class is from a library
         return className.startsWith("java.") || className.startsWith("javax.") || className.startsWith("org.");
     }
 
