@@ -2,6 +2,8 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import com.github.javaparser.ast.stmt.*;
 
 /**
+ * Used to calculate the cyclomatic complexity of each method in a class.
+ *
  * @author christophergrigorian
  */
 

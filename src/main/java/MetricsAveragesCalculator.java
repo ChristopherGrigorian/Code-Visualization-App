@@ -1,8 +1,12 @@
 import java.util.Map;
 
 /**
+ * Used to populate the east table in the raw metrics panel.
+ * Essentially parses through classMetricsMap and calculates desired averages of data within.
+ *
  * @author christophergrigorian
  */
+
 public class MetricsAveragesCalculator {
 
     private final Map<String, ClassMetrics> classMetricsMap;
