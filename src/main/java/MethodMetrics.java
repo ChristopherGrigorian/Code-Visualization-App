@@ -2,15 +2,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Holds immutable data about methods within classes.
+ *
  * @author christophergrigorian
  * @author Charlie Ray (Method Calls)
  */
 
 public class MethodMetrics {
-    private String methodName;
-    private int linesOfCode;
+    private final String methodName;
+    private final int linesOfCode;
     private int cyclomaticComplexity;
-    private List<ParameterMetrics> parameters;
+    private final List<ParameterMetrics> parameters;
     private List<MethodCallDetails> methodCalls;
 
     public MethodMetrics(String methodName, int linesOfCode) {
@@ -33,16 +35,8 @@ public class MethodMetrics {
         return methodName;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
     public int getLinesOfCode() {
         return linesOfCode;
-    }
-
-    public void setLinesOfCode(int linesOfCode) {
-        this.linesOfCode = linesOfCode;
     }
 
     public int getCyclomaticComplexity() {
