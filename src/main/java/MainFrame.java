@@ -1,3 +1,7 @@
+import com.sun.tools.javac.Main;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -5,9 +9,9 @@ import java.io.IOException;
 import java.util.Map;
 /**
  * @author CharlieRay668 (Charlie Ray)
- * @author
- * @author
- * @author
+ * @author Christopher Grigorian
+ * @author Harold Ellis
+ * @author Eric Canihuante
  */
 public class MainFrame extends JFrame {
     public static void main(String[] args) {
@@ -19,7 +23,6 @@ public class MainFrame extends JFrame {
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File selectedDirectory = fileChooser.getSelectedFile();
             PowerHouse ph = PowerHouse.getInstance();
-            ph.setCurDirectory(selectedDirectory);
             try {
                 ph.parseDirectory(selectedDirectory.toPath());
                 createAndShowGUI(ph.getClassMetricsMap(), selectedDirectory);
@@ -30,6 +33,7 @@ public class MainFrame extends JFrame {
     }
 
     private static void createAndShowGUI(Map<String, ClassMetrics> metrics, File directory) {
+        Logger logger = LoggerFactory.getLogger(Main.class);
         JFrame frame = new MainFrame(metrics, directory);
         frame.setTitle("Galaxy Plot");
         frame.setSize(1200, 800);
@@ -41,7 +45,7 @@ public class MainFrame extends JFrame {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.error("InterruptedException occurred in createAndShowGUI", e);
             }
         }
     }
