@@ -7,8 +7,6 @@ import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 
-import javax.swing.*;
-import java.io.File;
 import java.util.*;
 
 import java.io.IOException;
@@ -19,6 +17,8 @@ import java.util.stream.Stream;
 
 
 /**
+ * This class parses Java source code directories and calculates various metrics for each class found within those directories.
+ *
  * @author christophergrigorian
  * @author Charlie Ray (Imbedded Method Calls -> MethodCallVisitor, MethodCallDetails
  */
@@ -26,9 +26,8 @@ import java.util.stream.Stream;
 public class PowerHouse {
 
     private static PowerHouse instance;
-    private static File curDirectory;
 
-    private Map<String, ClassMetrics> classMetricsMap;
+    private final Map<String, ClassMetrics> classMetricsMap;
 
     private PowerHouse() {
         super();
@@ -44,14 +43,6 @@ public class PowerHouse {
 
     public Map<String, ClassMetrics> getClassMetricsMap() {
         return classMetricsMap;
-    }
-
-    public File getCurDirectory() {
-        return curDirectory;
-    }
-
-    public void setCurDirectory(File curDirectory) {
-        PowerHouse.curDirectory = curDirectory;
     }
 
     public void parseDirectory(Path path) throws IOException {
@@ -142,47 +133,51 @@ public class PowerHouse {
 
     private void collectConstructorMetrics(ClassOrInterfaceDeclaration classDeclaration, ClassMetrics classMetrics) {
         for (ConstructorDeclaration constructor : classDeclaration.getConstructors()) {
-            MethodMetrics methodMetrics = new MethodMetrics(constructor.getNameAsString(),
-                    constructor.getEnd().get().line - constructor.getBegin().get().line);
+            if (constructor.getBegin().isPresent() && constructor.getEnd().isPresent()) {
+                MethodMetrics methodMetrics = new MethodMetrics(constructor.getNameAsString(),
+                        constructor.getEnd().get().line - constructor.getBegin().get().line);
 
-            MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
-            constructor.accept(methodCallVisitor, classDeclaration.getNameAsString());
-            methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
+                MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
+                constructor.accept(methodCallVisitor, classDeclaration.getNameAsString());
+                methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
 
-            classMetrics.addMethod(methodMetrics);
+                classMetrics.addMethod(methodMetrics);
+            }
         }
     }
 
     private void collectMethodMetrics(ClassOrInterfaceDeclaration classDeclaration, ClassMetrics classMetrics) {
         for (MethodDeclaration method : classDeclaration.getMethods()) {
-            MethodMetrics methodMetrics = new MethodMetrics(method.getNameAsString(),
-                    method.getEnd().get().line - method.getBegin().get().line);
+            if (method.getBegin().isPresent() && method.getEnd().isPresent()) {
+                MethodMetrics methodMetrics = new MethodMetrics(method.getNameAsString(),
+                        method.getEnd().get().line - method.getBegin().get().line);
 
-            int cyclomaticComplexity = calculateCyclomaticComplexity(method);
-            methodMetrics.setCyclomaticComplexity(cyclomaticComplexity);
+                int cyclomaticComplexity = calculateCyclomaticComplexity(method);
+                methodMetrics.setCyclomaticComplexity(cyclomaticComplexity);
 
-            for (Parameter parameter : method.getParameters()) {
-                String paramName = parameter.getNameAsString();
-                Type paramType = parameter.getType();
-                methodMetrics.addParameter(new ParameterMetrics(paramName, paramType.toString()));
-                if (paramType.isClassOrInterfaceType()) {
-                    String referencedClass = paramType.asClassOrInterfaceType().getNameAsString();
-                    classMetrics.addOutgoingDependency(referencedClass);
+                for (Parameter parameter : method.getParameters()) {
+                    String paramName = parameter.getNameAsString();
+                    Type paramType = parameter.getType();
+                    methodMetrics.addParameter(new ParameterMetrics(paramName, paramType.toString()));
+                    if (paramType.isClassOrInterfaceType()) {
+                        String referencedClass = paramType.asClassOrInterfaceType().getNameAsString();
+                        classMetrics.addOutgoingDependency(referencedClass);
+                    }
                 }
-            }
 
-            MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
-            method.accept(methodCallVisitor, classDeclaration.getNameAsString());
-            methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
+                MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
+                method.accept(methodCallVisitor, classDeclaration.getNameAsString());
+                methodMetrics.setMethodCalls(methodCallVisitor.getMethodCalls());
 
-            for (MethodCallDetails methodCall : methodCallVisitor.getMethodCalls()) {
-                String parentClass = methodCall.getParentClass();
-                if (parentClass != null && !parentClass.isEmpty() && classMetricsMap.containsKey(parentClass)) {
-                    classMetrics.addOutgoingDependency(parentClass);
+                for (MethodCallDetails methodCall : methodCallVisitor.getMethodCalls()) {
+                    String parentClass = methodCall.getParentClass();
+                    if (parentClass != null && !parentClass.isEmpty() && classMetricsMap.containsKey(parentClass)) {
+                        classMetrics.addOutgoingDependency(parentClass);
+                    }
                 }
-            }
 
-            classMetrics.addMethod(methodMetrics);
+                classMetrics.addMethod(methodMetrics);
+            }
         }
     }
 
@@ -240,6 +235,7 @@ public class PowerHouse {
         line = line.replaceAll("/\\*.*?\\*/", "");
         return line;
     }
+
     private int getAbstractness(CompilationUnit compilationUnit) {
         return compilationUnit.findFirst(ClassOrInterfaceDeclaration.class)
                 .map(declaration -> {
