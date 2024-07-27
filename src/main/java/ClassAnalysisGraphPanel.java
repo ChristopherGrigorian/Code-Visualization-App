@@ -10,6 +10,10 @@ import org.jgrapht.ext.JGraphXAdapter;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 
+/**
+ * @author Eric Canihuante
+ */
+
 public abstract class ClassAnalysisGraphPanel extends JPanel {
     protected SimpleGraph<String, DefaultEdge> graph;
     protected JGraphXAdapter<String, DefaultEdge> graphAdapter;
