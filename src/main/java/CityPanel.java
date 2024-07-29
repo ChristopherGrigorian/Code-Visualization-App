@@ -6,6 +6,10 @@ import javax.swing.JPanel;
 
 import org.jfree.chart3d.Chart3DPanel;
 
+/**
+ * @author Harold Ellis (manualdriver)
+ */
+
 public class CityPanel extends JPanel {
 
     private final List<Chart3DPanel> chartPanels;

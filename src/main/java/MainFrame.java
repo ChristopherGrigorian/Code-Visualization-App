@@ -52,7 +52,12 @@ public class MainFrame extends JFrame {
         tabs.addTab("Galaxy", new GalaxyPanel());
         tabs.addTab("Raw Metrics", new RawMetricsPanel());
         tabs.addTab("Abstractness vs. Instability", new MetricsChartPanel());
-        tabs.addTab("City View", CityController.createChartPanel());
+
+        // City View Tabs
+        JTabbedPane cityViewTabs = new JTabbedPane();
+        cityViewTabs.addTab("Class Metrics", CityPanelFactory.createClassMetricsPanel());
+        cityViewTabs.addTab("Method Metrics", CityPanelFactory.createMethodMetricsPanel());
+        tabs.addTab("City View", cityViewTabs);
 
         // Create "Class Analysis" tab with sub-tabs for each visualization
         JTabbedPane classAnalysisTabs = new JTabbedPane();

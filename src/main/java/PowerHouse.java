@@ -29,7 +29,7 @@ public class PowerHouse {
 
     private static PowerHouse instance;
 
-    private final Map<String, ClassMetrics> classMetricsMap;
+    private Map<String, ClassMetrics> classMetricsMap;
 
     private PowerHouse() {
         super();
@@ -45,6 +45,10 @@ public class PowerHouse {
 
     public Map<String, ClassMetrics> getClassMetricsMap() {
         return classMetricsMap;
+    }
+
+    public void setClassMetricsMap(Map<String, ClassMetrics> classMetricsMap) {
+        this.classMetricsMap = classMetricsMap;
     }
 
     public void parseDirectory(Path path) throws IOException {
