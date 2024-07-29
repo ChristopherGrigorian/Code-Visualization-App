@@ -1,5 +1,4 @@
 import org.jfree.chart3d.Chart3D;
-import org.jfree.chart3d.data.category.CategoryDataset3D;
 import org.jfree.chart3d.data.category.StandardCategoryDataset3D;
 import org.jfree.chart3d.graphics3d.Dimension3D;
 import org.jfree.chart3d.plot.CategoryPlot3D;

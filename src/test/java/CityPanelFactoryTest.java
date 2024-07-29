@@ -35,7 +35,7 @@ public class CityPanelFactoryTest {
         JPanel panel = CityPanelFactory.createMethodMetricsPanel();
         assertNotNull(panel);
 
-        Component[] components = ((JPanel) panel).getComponents();
+        Component[] components = panel.getComponents();
         assertInstanceOf(JTabbedPane.class, components[0]);
         JTabbedPane tabbedPane = (JTabbedPane) components[0];
         assertEquals(1, tabbedPane.getTabCount());
